@@ -224,4 +224,31 @@ O risco: o modelo pode "ouvir" termos que o usuário **não** disse, e a avalia�
 
 ## Conclusões
 
-_Escrevam aqui o que descobriram: os números da tabela, qual modelo escolher e se a métrica de vícios é viável._
+### O que já foi testado (02/10/2026)
+
+Rodamos o passo 3 em três áudios:
+- uma gravação de cerca de 1 minuto, com o modelo `medium`;
+- uma gravação curta, com o `small`;
+- o áudio de voz sintética, com o `small`.
+
+| Áudio | A (padrão) | B (com prompt) |
+|---|---|---|
+| Gravação de ~1 min (`medium`) | Transcreveu a fala inteira, sem nenhum "éé" | Pegou 2 "Ééé...", mas **pulou cerca de metade das frases** |
+| Gravação curta (`small`) | Texto correto ("Boa tarde", "Peter Hick") | Pegou 2 "éé", mas **distorceu palavras** ("Bua tarde", "PeterHick") |
+| Voz sintética (`small`) | Escreveu as hesitações como "é" e "um" | Escreveu "éé" e "hum"; mudou só a grafia |
+
+**Conclusão:** o prompt de hesitações recupera os "éé", mas faz o Whisper perder e distorcer conteúdo. Para o PROSA, perder uma frase é muito pior do que perder um "éé", porque a análise de conteúdo depende da transcrição completa.
+
+**Decisões:**
+- A **transcrição oficial é a versão A** (sem prompt).
+- A **métrica de vícios fica em aberto.** As opções são:
+  - testar um prompt mais leve;
+  - contar as pausas pelo tempo das palavras (passo 2);
+  - tratar a métrica como aproximada no relatório.
+- O `small` e o `medium` rodam bem na CPU. O `medium` é um download de 1,5 GB, e a primeira execução demora.
+
+### O que falta
+
+- [ ] Uma gravação no cenário real: pesquisar algo por 5 minutos e explicar em 2. Pode ser a mesma do Teste 3.
+- [ ] A contagem manual de vícios dessa gravação, comparada com as versões A e B.
+- [ ] A gravação `leitura`, para checar se a versão B inventa hesitações.

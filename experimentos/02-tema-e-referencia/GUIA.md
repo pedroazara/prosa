@@ -279,4 +279,40 @@ Três lições:
 
 ## Conclusões
 
-_Escrevam aqui o que descobriram: os temas variam? Os artigos batem com as perguntas? O que mudariam no prompt?_
+### O que já foi testado (02/10/2026)
+
+Os testes foram feitos com o Groq e o modelo `openai/gpt-oss-120b`.
+
+**Chamadas e saída estruturada (passos 2 e 3)**
+- As chamadas funcionam, incluindo a saída estruturada com listas de objetos.
+- Pedir temas "específicos" não bastou: vieram temas amplos, como "Política monetária". Regras explícitas mais um exemplo no prompt resolveram.
+- Com o prompt em português, os 20 temas de Arquitetura vieram todos brasileiros. Daí surgiu a opção `--origem brasil|mundo`.
+
+**Filtros de forma não bastam**
+
+Dos 20 candidatos de uma rodada, pelo menos 3 levariam a um artigo de **outro assunto** e passariam em todos os filtros:
+- "Casa do Povo" → "Parque do Povo";
+- "Conjunto 13 de Julho" → "Linha 13 do Trem";
+- "Tijolo baiano" → "Morro Santo Amaro".
+
+Por isso foi criado o filtro de significado do passo 4.
+
+**Passo 4: três rodadas de vocês**
+
+| Tema | Veredito | Resultado |
+|---|---|---|
+| Theatro da Paz | `responde` | Bom: 4 pontos de alto nível |
+| Pavilhão da Bienal | `reescrever` | A reescrita estava certa, mas a rubrica virou lista de medidas |
+| Observatório Palomar | `reescrever` | A pergunta foi parar num detalhe do artigo (quasares) |
+
+Depois de duas iterações de prompt (seção 6), a rubrica passou a trazer pontos que explicam algo. Perguntas que o artigo não cobre agora são descartadas, em vez de reescritas.
+
+**Outros aprendizados**
+- **`LengthFinishReasonError`:** o raciocínio do modelo esgotou o limite de saída. Foi corrigido com `max_completion_tokens`.
+- **Limites do plano grátis:** 8 mil tokens por minuto é o gargalo. Pausas de alguns segundos entre as chamadas são normais.
+- **Citação verificada não garante ideia correta.** A paráfrase pode distorcer o trecho citado (caso da radiação Hawking), e só a revisão humana pega isso.
+
+### O que falta
+
+- [ ] Rodar o passo 4 umas 5 vezes com o prompt atual (as duas origens) e preencher a tabela da seção 6.
+- [ ] Escolher 2 referências boas para o Teste 3.

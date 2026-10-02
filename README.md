@@ -4,7 +4,11 @@
 
 PROSA é um treinador de aprendizado e comunicação. O usuário recebe um tema desconhecido, pesquisa sobre ele na internet por poucos minutos e depois o explica em voz alta, sem consultar nada. O sistema dá feedback sobre o que ele entendeu e sobre como comunicou.
 
-> **Status:** fase inicial, nos testes de risco (Fase 0). Ainda não há código executável.
+> **Status:** Fase 0, testes de risco.
+> - Transcrição (Teste 1) e sorteio de tema com referência (Teste 2): funcionando, como scripts em [`experimentos/`](experimentos/).
+> - Avaliação da explicação (Teste 3): é o próximo passo.
+>
+> Ainda não há aplicativo.
 
 ---
 
@@ -124,23 +128,57 @@ Estas decisões existem para enfrentar o maior problema do projeto: **fazer a av
    - outros pontos corretos;
    - afirmações erradas.
 8. **A referência e a rubrica não chegam à interface antes da avaliação.**
-9. **O código não depende de um fornecedor.** Trocar entre um modelo local e uma API é só configuração.
-10. **Local e gratuito por padrão.** Para rodar o projeto, não é preciso pagar nenhuma API.
+9. **Aleatoriedade e verificação ficam no código; julgamento e criatividade, no LLM.**
+   - O código sorteia a área e escolhe entre os candidatos, porque LLMs repetem sempre os mesmos temas.
+   - O LLM propõe temas e julga se um artigo responde à pergunta.
+10. **Não confie, verifique.** Toda citação que o LLM faz, seja do artigo ou da transcrição, é conferida no código. Uma citação que não existe é marcada.
+11. **O código não depende de um fornecedor.** Trocar entre Groq, Gemini e um modelo local é só configuração.
+12. **Gratuito.** A transcrição roda localmente e o LLM usa um plano grátis. Para rodar o projeto, não é preciso pagar nenhuma API.
 
 ## Stack
 
-| Componente | Padrão (grátis, local) | Alternativas |
+| Componente | Em uso (grátis) | Alternativas |
 |---|---|---|
-| Linguagem | Python 3.12+ | — |
-| LLM | [Ollama](https://ollama.com) + modelo aberto de 7–9B | Gemini e Groq (planos grátis); Claude e OpenAI (pagos) |
-| Transcrição | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (local) | Whisper via Groq |
+| Linguagem | Python 3.12+ (testado com o 3.14) | — |
+| LLM | [Groq](https://console.groq.com), plano grátis, modelo `openai/gpt-oss-120b` | Gemini (grátis); [Ollama](https://ollama.com) (local); Claude e OpenAI (pagos) |
+| Cliente do LLM | Biblioteca `openai` + saída estruturada com Pydantic | — |
+| Transcrição | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) local, modelos `small`/`medium` na CPU | Whisper via Groq |
 | Fonte da referência | API da Wikipedia em português | — |
 | Interface | Streamlit | FastAPI + Next.js (futuro) |
 | Armazenamento | Arquivos JSON ou SQLite | PostgreSQL (futuro) |
 
 Ollama, Groq e Gemini oferecem endpoints compatíveis com o formato da OpenAI. Por isso, um único cliente atende os três, e trocar de fornecedor é só mudar a URL e a chave. O Claude usa o SDK da Anthropic, com um adaptador próprio.
 
-## Estrutura do projeto (planejada)
+## Estrutura do projeto
+
+### Hoje
+
+```
+prosa/
+  experimentos/
+    01-whisper/                 ← Teste 1: transcrição e vícios de linguagem
+      GUIA.md                   ← passo a passo para aprender e fazer o teste
+      passo1_transcrever.py
+      passo2_palavras_e_pausas.py
+      passo3_teste_vicios.py
+      audios/                   ← gravações (fora do git)
+      resultados/               ← resultados dos testes (fora do git)
+    02-tema-e-referencia/       ← Teste 2: sorteio de tema, referência e rubrica
+      GUIA.md
+      llm.py                    ← conexão com o LLM (lê o .env)
+      wikipedia.py              ← busca de artigos
+      areas.py                  ← áreas do conhecimento para o sorteio
+      sorteio.py                ← sorteio de temas (módulo reutilizável)
+      referencia.py             ← conferência do artigo + rubrica (módulo reutilizável)
+      passo1_wikipedia.py … passo4_referencia.py
+      referencias/              ← referências geradas (usadas no Teste 3)
+  requirements.txt
+  .env.example                  ← modelo de configuração (a chave fica no .env, fora do git)
+```
+
+### Planejada (V1)
+
+Os módulos dos experimentos (`llm.py`, `sorteio.py`, `referencia.py`…) vão migrar para o `pipeline/`.
 
 ```
 prosa/
@@ -167,17 +205,35 @@ O `pipeline/` fica separado da interface. Assim, dá para trocar o Streamlit por
 
 Antes de qualquer interface, validar com scripts as partes que podem inviabilizar o projeto.
 
-- [ ] **Teste 1: vícios de linguagem.** O Whisper preserva "é...", "tipo", "né"?
-  - Transcrever gravações com e sem um `initial_prompt` cheio de hesitações.
-  - Comparar com a contagem feita à mão.
-- [ ] **Teste 2: tema e referência.** O sistema sorteia bons temas e monta uma referência e uma rubrica que prestam?
-  - Os temas sorteados variam? Dá para pesquisar cada um em poucos minutos?
-  - O JSON vem válido?
-  - A referência é fiel ao artigo da Wikipedia?
-  - A rubrica lista só o essencial?
-- [ ] **Teste 3: avaliação.** O LLM avaliador concorda com a avaliação humana?
-  - Cada integrante avalia à mão a mesma explicação.
-  - Comparar as avaliações humanas com a do LLM.
+#### Teste 1: transcrição e vícios de linguagem: 🟢 risco entendido
+
+Detalhes em [experimentos/01-whisper/GUIA.md](experimentos/01-whisper/GUIA.md).
+
+- [x] Transcrever gravações com e sem um `initial_prompt` cheio de hesitações.
+- [x] **Decisão:** a transcrição oficial é feita **sem** o prompt. Ele recupera os "éé", mas faz o Whisper pular e distorcer frases inteiras.
+- [ ] Gravar no cenário real (pesquisar 5 minutos e explicar) e comparar com a contagem manual de vícios.
+- [ ] Definir a métrica de vícios: prompt mais leve, pausas pelo tempo das palavras, ou métrica aproximada.
+
+#### Teste 2: tema e referência: 🟢 funcionando
+
+Detalhes em [experimentos/02-tema-e-referencia/GUIA.md](experimentos/02-tema-e-referencia/GUIA.md).
+
+- [x] Sorteio: o código sorteia a área, o LLM propõe 20 candidatos, e o código embaralha e aplica os filtros de forma.
+- [x] Temas brasileiros ou do mundo todo, à escolha do usuário (`--origem`).
+- [x] Filtro de significado: o LLM lê o artigo e confere se ele responde à pergunta. Nos testes, 2 de 3 perguntas pediam algo que o artigo não cobria.
+- [x] Rubrica com 3 a 5 ideias, cada uma com a citação do artigo conferida no código.
+- [x] Primeira iteração de prompt: pontos que explicam algo, em vez de listas de fatos e medidas.
+- [ ] Rodar umas 5 vezes com o prompt atual e revisar as rubricas.
+
+#### Teste 3: avaliação: 🔴 próximo passo
+
+O LLM avaliador concorda com a avaliação humana?
+
+- [ ] Escolher 2 referências.
+- [ ] Cada integrante pesquisa por 5 minutos e grava uma explicação de 2 minutos.
+- [ ] Cada integrante avalia à mão as duas gravações, **antes** de ver a avaliação do LLM.
+- [ ] Experimento 03: o LLM recebe transcrição, rubrica e referência e devolve uma avaliação com evidências.
+- [ ] Comparar as avaliações: humano × humano e humano × LLM.
 
 ### V1: MVP
 
@@ -265,7 +321,9 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 2. Whisper
+### 2. Bibliotecas
+
+Com o ambiente ativado, na raiz do projeto:
 
 ```bash
 pip install -r requirements.txt
@@ -283,7 +341,17 @@ Por enquanto usamos um LLM na nuvem, pelo plano grátis do [Groq](https://consol
 2. Copie o `.env.example` para `.env`.
 3. Coloque a chave no `.env`.
 
+Cada integrante usa a própria chave: os limites do plano grátis são por conta.
+
 O passo a passo está em [experimentos/02-tema-e-referencia/GUIA.md](experimentos/02-tema-e-referencia/GUIA.md).
+
+**Limites do plano grátis do Groq para o `gpt-oss-120b`:**
+- 30 requisições por minuto;
+- 1.000 requisições por dia;
+- **8.000 tokens por minuto**;
+- 200.000 tokens por dia.
+
+Os tokens por minuto são o gargalo. Uma rodada do passo 4 gasta cerca de 10 mil tokens, então a segunda chamada costuma esperar alguns segundos (erro 429), e o script tenta de novo sozinho. Os limites atualizados ficam em [console.groq.com/settings/limits](https://console.groq.com/settings/limits).
 
 ### 4. (Opcional) Ollama, para rodar o LLM localmente
 
@@ -299,16 +367,37 @@ No `.env`, use `LLM_BASE_URL=http://localhost:11434/v1`, qualquer valor em `LLM_
 
 ## Riscos conhecidos
 
-| Risco | Mitigação |
-|---|---|
-| Sistemas de transcrição apagam hesitações ("é...", "hum") | `initial_prompt` com hesitações; detectar pausas pelo áudio; validar no Teste 1 |
-| "é", "então", "tipo", "aí" também são palavras normais | Desambiguar pelo contexto; tratar a métrica de vícios como aproximada |
-| Modelos locais pequenos avaliam de forma menos consistente | Rubrica com evidência; evals; comparar com um modelo maior |
-| Referência com erro faz o avaliador "corrigir" o que o usuário disse certo | Montar a referência a partir de um artigo real; mostrar no relatório a fonte de cada correção |
-| O usuário pesquisa em fontes diferentes da referência | Rubrica só com o essencial; pontos corretos fora dela não são penalizados |
-| LLMs repetem os mesmos temas quando se pede algo "aleatório" | Fazer o sorteio em código (área, artigo) e deixar o LLM só filtrar se o tema serve |
-| Notas do LLM variam entre execuções | Checklists com evidência em vez de porcentagens |
-| Espera de 5 a 15 s por rodada de follow-up | Aceitável no V2; streaming para melhorar a percepção |
+| Risco | Mitigação | Situação |
+|---|---|---|
+| O Whisper apaga hesitações ("é...", "hum") | `initial_prompt` com hesitações | **Testado:** recupera os "éé", mas faz perder e distorcer conteúdo. Descartado como transcrição oficial; a métrica de vícios segue em aberto |
+| "é", "um", "então", "tipo" também são palavras normais | Desambiguar pelo contexto; métrica aproximada | "hum" transcrito como "um" fica igual ao artigo; a contagem não inclui "um" |
+| A pergunta do LLM tem premissa inventada ou pede algo que o artigo não cobre | O LLM lê o artigo e descarta ou reescreve a pergunta antes da rubrica | **Testado:** aconteceu em 2 de 3 casos, e o filtro pegou |
+| A busca leva a um artigo de outro assunto ("Casa do Povo" → "Parque do Povo") | O mesmo filtro de significado | **Testado:** os filtros de forma não pegam; o de significado pega |
+| A rubrica lista detalhes (medidas, datas) em vez de ideias | Prompt: cada ponto explica uma causa, um mecanismo, uma consequência ou uma importância | **Melhorou** após iteração de prompt |
+| A paráfrase da rubrica distorce a citação (citação certa, ideia errada) | Revisão humana das rubricas; evals | **Em aberto:** a verificação em código só pega citação inventada |
+| Referência com erro faz o avaliador "corrigir" o que o usuário disse certo | Referência a partir de um artigo real; mostrar a fonte de cada correção | |
+| O usuário pesquisa em fontes diferentes da referência | Rubrica só com o essencial; pontos corretos fora dela não são penalizados | |
+| LLMs repetem os mesmos temas quando se pede algo "aleatório" | Sorteio no código; LLM só propõe e filtra | Ainda puxa para temas populares (ex.: buracos negros) |
+| Modelos que raciocinam esgotam o limite de saída antes de terminar o JSON | `max_completion_tokens=8000` | **Corrigido** |
+| Limites do plano grátis (8 mil tokens/minuto) | Repetições automáticas no erro 429; artigo limitado a 8.000 caracteres; uma chave por pessoa | Causa pausas, não falhas |
+| Notas do LLM variam entre execuções | Checklists com evidência em vez de porcentagens | A medir no Teste 3 |
+| Espera de 5 a 15 s por rodada de follow-up | Aceitável no V2; streaming para melhorar a percepção | |
+
+## Decisões tomadas
+
+| Data | Decisão | Por quê |
+|---|---|---|
+| 01/10/2026 | Nome: PROSA | Plataforma de Raciocínio, Oratória, Síntese e Argumentação |
+| 01/10/2026 | Projeto de estudo, sem objetivo comercial | O foco é aprender engenharia de LLM |
+| 01/10/2026 | Python + Streamlit no V1, com o `pipeline/` separado da interface | Uma linguagem só; foco nas partes de LLM |
+| 01/10/2026 | Começar pelos testes de risco, sem interface | Descobrir cedo o que pode inviabilizar o projeto |
+| 01/10/2026 | Ambiente virtual em `.venv` e comandos em Git Bash | Preferência da equipe |
+| 02/10/2026 | Transcrição oficial sem `initial_prompt` | Teste 1: o prompt faz o Whisper perder conteúdo |
+| 02/10/2026 | O usuário pesquisa por conta própria; a IA só gera referência e rubrica ocultas | Mais realista, e o usuário não aprende com texto alucinado |
+| 02/10/2026 | O desafio pede os pontos principais em até 2 minutos; rubrica com 3 a 5 ideias | Treina síntese e torna a avaliação mais confiável |
+| 02/10/2026 | Sorteio: o código sorteia, o LLM propõe, o código filtra a forma, o LLM confere o significado | LLMs são ruins em aleatoriedade; filtros de forma não bastam |
+| 02/10/2026 | Origem dos temas à escolha do usuário (`brasil` ou `mundo`) | O prompt em português puxava tudo para temas brasileiros |
+| 02/10/2026 | LLM pelo plano grátis do Groq (`gpt-oss-120b`), sem instalar Ollama | Começar sem baixar 5 GB; o código continua independente de fornecedor |
 
 ## Equipe
 
