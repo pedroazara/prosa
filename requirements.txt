@@ -1,0 +1,3 @@
+faster-whisper==1.2.1
+# O av 18 removeu um parâmetro (metadata_errors) que o faster-whisper 1.2.1 usa.
+av<18

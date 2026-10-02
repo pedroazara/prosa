@@ -124,6 +124,7 @@ prosa/
     analysis.py       ← análise de conteúdo (LLM como avaliador)
   prompts/            ← prompts em arquivos, versionados no git
   evals/              ← transcrições + avaliações feitas à mão
+  experimentos/       ← scripts de aprendizado e testes de risco (Fase 0)
   app.py              ← interface (Streamlit)
   .env.example        ← modelo de configuração (sem chaves reais)
 ```
@@ -215,27 +216,31 @@ Cada frente faz a parte da interface que corresponde ao que construiu. Na metade
 
 ### 1. Python
 
-Use Python 3.12 ou mais novo. Se a instalação de alguma biblioteca falhar numa versão muito recente, use o 3.12.
+Use Python 3.12 ou mais novo. O projeto já foi testado com o 3.14.
 
-Windows (PowerShell):
+O ambiente virtual fica em `.venv`, na raiz do projeto. Ela está no `.gitignore`, então não vai para o GitHub.
 
-```powershell
-py -3.12 -m venv .venv
-.venv\Scripts\Activate.ps1
+Windows (Git Bash):
+
+```bash
+py -m venv .venv
+source .venv/Scripts/activate
 ```
 
 macOS / Linux:
 
 ```bash
-python3.12 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 ### 2. Whisper
 
 ```bash
-pip install faster-whisper requests
+pip install -r requirements.txt
 ```
+
+O passo a passo para aprender a usar o Whisper e fazer o Teste 1 está em [experimentos/01-whisper/GUIA.md](experimentos/01-whisper/GUIA.md).
 
 Para rodar na GPU (NVIDIA), o faster-whisper precisa das bibliotecas CUDA (cuBLAS e cuDNN). Se configurar isso der trabalho, comece na CPU com o modelo `small` ou `medium`: para os testes de risco, é suficiente.
 
