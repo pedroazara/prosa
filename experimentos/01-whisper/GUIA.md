@@ -88,7 +88,14 @@ deactivate
 
 Os modelos são baixados na primeira execução e ficam em `%USERPROFILE%\.cache\huggingface`, fora do projeto.
 
-Nessa primeira execução pode aparecer um aviso do `huggingface_hub` dizendo que o Windows não suporta *symlinks* no cache. É inofensivo: o cache funciona normalmente, só ocupa um pouco mais de espaço.
+Nessa primeira execução, duas coisas são normais:
+
+- **O terminal fica parado, sem mostrar progresso, enquanto o modelo baixa.** Isso pode levar alguns minutos nos modelos grandes: o `medium` tem 1,5 GB. Não interrompa.
+- **Pode aparecer um aviso do `huggingface_hub`** dizendo que o Windows não suporta *symlinks* no cache. É inofensivo: o cache funciona normalmente, só ocupa um pouco mais de espaço. Para esconder o aviso de vez:
+
+```bash
+echo 'export HF_HUB_DISABLE_SYMLINKS_WARNING=1' >> ~/.bashrc
+```
 
 ---
 

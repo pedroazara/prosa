@@ -12,3 +12,7 @@ __pycache__/
 *.ogg
 *.flac
 *.webm
+experimentos/01-whisper/resultados
+
+# Histórico local de temas sorteados
+experimentos/02-tema-e-referencia/historico_temas.json

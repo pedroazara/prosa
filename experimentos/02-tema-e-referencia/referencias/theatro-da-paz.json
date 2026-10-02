@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Qual a importância arquitetônica e cultural do Teatro da Paz em Belém?",
+  "pergunta_final": "Qual a importância arquitetônica e cultural do Teatro da Paz em Belém?",
+  "veredito": "responde",
+  "justificativa": "O artigo descreve o Theatro da Paz, abordando seu estilo neoclássico, seu papel como primeiro teatro de ópera da Amazônia, sua inserção no contexto cultural da Belle Époque e seu reconhecimento como patrimônio histórico e mundial, cobrindo assim a importância arquitetônica e cultural solicitada.",
+  "area": "Artes",
+  "origem": "brasil",
+  "artigo": "Theatro da Paz",
+  "link": "https://pt.wikipedia.org/wiki/Theatro_da_Paz",
+  "pontos_principais": [
+    {
+      "ideia": "O Theatro da Paz foi projetado em estilo neoclássico, sendo um exemplar marcante da arquitetura neoclássica na Amazônia.",
+      "trecho_do_artigo": "Foi projetado pelo engenheiro pernambucano José Tibúrcio Pereira Magalhães no estilo neoclássico",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "É considerado o primeiro teatro de ópera da Amazônia e um dos primeiros teatros líricos do Brasil, destacando sua relevância cultural.",
+      "trecho_do_artigo": "É considerado ... o primeiro teatro de ópera da Amazônia e um dos primeiros teatros líricos do Brasil.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Durante a Belle Époque, o teatro integrava o polígono da cultura, sendo ponto de reunião da elite belenense e símbolo do esplendor da borracha.",
+      "trecho_do_artigo": "A construção deste espaço durante a Belle Époque brasileira (1871–1914) formou o polígono da cultura e local de reunião da elite de Belém.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Foi reconhecido como patrimônio histórico pelo IPHAN e, em 2026, tombado como Patrimônio Mundial da UNESCO, reforçando sua importância arquitetônica e cultural.",
+      "trecho_do_artigo": "É considerado pelo IPHAN um teatro-monumento e patrimônio histórico, ... Em 2026, foi tombado como Patrimônio Mundial da UNESCO.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-02T10:28:03"
+}

@@ -1,3 +1,6 @@
 faster-whisper==1.2.1
 # O av 18 removeu um parâmetro (metadata_errors) que o faster-whisper 1.2.1 usa.
 av<18
+openai==3.23.0
+python-dotenv==1.2.4
+httpx==0.28.1
