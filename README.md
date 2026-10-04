@@ -6,9 +6,8 @@ PROSA é um treinador de aprendizado e comunicação. O usuário recebe um tema 
 
 > **Status:** Fase 0, testes de risco.
 > - Transcrição (Teste 1) e sorteio de tema com referência (Teste 2): funcionando, como scripts em [`experimentos/`](experimentos/).
-> - Avaliação da explicação (Teste 3): é o próximo passo.
->
-> Ainda não há aplicativo.
+> - Protótipo web em [`prototipo/`](prototipo/): roda uma sessão completa (sorteio, pesquisa, gravação, transcrição e métricas de fala).
+> - Avaliação do conteúdo da explicação (Teste 3): fica para depois. Por enquanto, o relatório mostra a rubrica e o usuário marca à mão os pontos que cobriu.
 
 ---
 
@@ -74,6 +73,8 @@ Modo:                 Learn & Explain
 ### O desafio: os pontos principais
 
 O usuário não precisa explicar tudo. O desafio é falar **os pontos principais do tema, sem entrar em detalhes**, em até 2 minutos.
+
+Durante a pesquisa, o usuário é incentivado a anotar no papel as 3 a 4 ideias centrais, em poucas palavras: escrever curto obriga a sintetizar. Na hora de explicar, as anotações ficam guardadas.
 
 Isso tem três vantagens:
 - treina síntese;
@@ -144,7 +145,8 @@ Estas decisões existem para enfrentar o maior problema do projeto: **fazer a av
 | Cliente do LLM | Biblioteca `openai` + saída estruturada com Pydantic | — |
 | Transcrição | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) local, modelos `small`/`medium` na CPU | Whisper via Groq |
 | Fonte da referência | API da Wikipedia em português | — |
-| Interface | Streamlit | FastAPI + Next.js (futuro) |
+| Interface (protótipo) | React + TypeScript (Vite) no navegador; FastAPI servindo a API | — |
+| Gravação | `MediaRecorder` do navegador (áudio em WebM/Opus) | — |
 | Armazenamento | Arquivos JSON ou SQLite | PostgreSQL (futuro) |
 
 Ollama, Groq e Gemini oferecem endpoints compatíveis com o formato da OpenAI. Por isso, um único cliente atende os três, e trocar de fornecedor é só mudar a URL e a chave. O Claude usa o SDK da Anthropic, com um adaptador próprio.
@@ -172,6 +174,16 @@ prosa/
       referencia.py             ← conferência do artigo + rubrica (módulo reutilizável)
       passo1_wikipedia.py … passo4_referencia.py
       referencias/              ← referências geradas (usadas no Teste 3)
+  prototipo/                    ← protótipo web: uma sessão completa no navegador
+    servidor.py                 ← API (FastAPI); serve também o site compilado
+    desafio.py                  ← sorteio + referência (usa os módulos do Teste 2)
+    fala.py                     ← transcrição e métricas de fala (do Teste 1)
+    sessoes/                    ← sessões gravadas: rubrica + transcrição (fora do git)
+    web/                        ← site em React (Vite)
+      src/componentes/          ← telas: Início, Pesquisa, Explicação, Relatório, painel do desenvolvedor
+      src/demo.ts               ← modo demonstração (?demo), com dados falsos
+      public/                   ← logotipo e favicon
+  PROSA logo brief/             ← identidade visual (logotipo, cores)
   requirements.txt
   .env.example                  ← modelo de configuração (a chave fica no .env, fora do git)
 ```
@@ -193,11 +205,11 @@ prosa/
   prompts/            ← prompts em arquivos, versionados no git
   evals/              ← transcrições + avaliações feitas à mão
   experimentos/       ← scripts de aprendizado e testes de risco (Fase 0)
-  app.py              ← interface (Streamlit)
+  prototipo/          ← interface (FastAPI + React)
   .env.example        ← modelo de configuração (sem chaves reais)
 ```
 
-O `pipeline/` fica separado da interface. Assim, dá para trocar o Streamlit por FastAPI + Next.js no futuro sem reescrever a lógica.
+O `pipeline/` fica separado da interface. Assim, a interface pode mudar sem reescrever a lógica.
 
 ## Roadmap
 
@@ -223,9 +235,16 @@ Detalhes em [experimentos/02-tema-e-referencia/GUIA.md](experimentos/02-tema-e-r
 - [x] Filtro de significado: o LLM lê o artigo e confere se ele responde à pergunta. Nos testes, 2 de 3 perguntas pediam algo que o artigo não cobria.
 - [x] Rubrica com 3 a 5 ideias, cada uma com a citação do artigo conferida no código.
 - [x] Primeira iteração de prompt: pontos que explicam algo, em vez de listas de fatos e medidas.
-- [ ] Rodar umas 5 vezes com o prompt atual e revisar as rubricas.
+- [x] Segunda iteração: o artigo vai em trechos escolhidos pela pergunta (introdução + seções com mais palavras em comum, até 12 mil caracteres), e não só o começo.
+- [x] Os pontos são a resposta à pergunta, e não um resumo do artigo; nada de linha do tempo (eventos com data).
+- [x] Veredito mais rígido: se a pergunta tem um recorte (período, lugar) que o artigo não cobre, ela é reescrita.
+- [x] Rodar umas 5 vezes com o prompt atual e revisar as rubricas (04/10). Resultado: em "Como funciona…" e "Qual a importância…" de temas com mecanismo (p53, carste, processo de contato), os pontos saem bons. Em temas de patrimônio (Hōryū-ji) ainda saem fatos ("uma das construções mais antigas"). Perguntas reescritas ficam genéricas ("cerâmica persa" → "cerâmica").
+- [x] Conferência de citações tolerante: aceita até 1 palavra diferente a cada 10, porque o LLM corrige erros de digitação do artigo ao copiar.
+- [x] O código sorteia também uma subárea (ex.: Física → acústica), para espalhar os temas.
 
-#### Teste 3: avaliação: 🔴 próximo passo
+#### Teste 3: avaliação: ⏸ adiado
+
+O protótipo já salva cada sessão (rubrica + transcrição) em `prototipo/sessoes/`. Esses arquivos servem de dados para este teste quando ele for retomado.
 
 O LLM avaliador concorda com a avaliação humana?
 
@@ -365,6 +384,28 @@ Um modelo nessa faixa cabe em uma GPU de 8 GB. Modelos maiores rodam dividindo a
 
 No `.env`, use `LLM_BASE_URL=http://localhost:11434/v1`, qualquer valor em `LLM_API_KEY` e o nome do modelo em `LLM_MODEL`.
 
+### 5. Protótipo web
+
+Precisa do Node.js 20 ou mais novo, além do Python. Na primeira vez, instale as dependências do site:
+
+```bash
+cd prototipo/web
+npm install
+```
+
+Para usar, rode em dois terminais, a partir da raiz do projeto:
+
+```bash
+python prototipo/servidor.py         # API na porta 8000 (usa o LLM e o Whisper)
+cd prototipo/web && npm run dev      # site em http://localhost:5173
+```
+
+Para mexer só no visual, sem LLM nem Whisper, abra http://localhost:5173/?demo. Com `?demo=pesquisa`, `?demo=explicacao` ou `?demo=relatorio`, o site abre direto numa tela, com dados falsos.
+
+Para servir tudo pela porta 8000, sem o Vite, compile o site uma vez com `npm run build`.
+
+O botão `</>` no topo abre o painel do desenvolvedor, com a rubrica oculta, o veredito e os candidatos testados. Abrir antes de explicar estraga o desafio.
+
 ## Riscos conhecidos
 
 | Risco | Mitigação | Situação |
@@ -373,13 +414,16 @@ No `.env`, use `LLM_BASE_URL=http://localhost:11434/v1`, qualquer valor em `LLM_
 | "é", "um", "então", "tipo" também são palavras normais | Desambiguar pelo contexto; métrica aproximada | "hum" transcrito como "um" fica igual ao artigo; a contagem não inclui "um" |
 | A pergunta do LLM tem premissa inventada ou pede algo que o artigo não cobre | O LLM lê o artigo e descarta ou reescreve a pergunta antes da rubrica | **Testado:** aconteceu em 2 de 3 casos, e o filtro pegou |
 | A busca leva a um artigo de outro assunto ("Casa do Povo" → "Parque do Povo") | O mesmo filtro de significado | **Testado:** os filtros de forma não pegam; o de significado pega |
-| A rubrica lista detalhes (medidas, datas) em vez de ideias | Prompt: cada ponto explica uma causa, um mecanismo, uma consequência ou uma importância | **Melhorou** após iteração de prompt |
+| A rubrica lista detalhes (medidas, datas) em vez de ideias | Prompt: cada ponto explica uma causa, um mecanismo, uma consequência ou uma importância; proibido montar linha do tempo | **Melhorou** após duas iterações de prompt; ainda aparecem pontos com data |
+| Só o começo do artigo ia para o LLM, e as seções com causas e mecanismos ficavam de fora | Seleção de seções pela pergunta (`preparar_texto`, em `referencia.py`) | **Corrigido** |
+| A rubrica fica presa à ênfase da Wikipedia, e o usuário pesquisa em outras fontes | Rubrica só com o essencial; avaliar por cobertura de ideias, não de palavras | Em aberto; importa mais no Teste 3 |
 | A paráfrase da rubrica distorce a citação (citação certa, ideia errada) | Revisão humana das rubricas; evals | **Em aberto:** a verificação em código só pega citação inventada |
 | Referência com erro faz o avaliador "corrigir" o que o usuário disse certo | Referência a partir de um artigo real; mostrar a fonte de cada correção | |
 | O usuário pesquisa em fontes diferentes da referência | Rubrica só com o essencial; pontos corretos fora dela não são penalizados | |
-| LLMs repetem os mesmos temas quando se pede algo "aleatório" | Sorteio no código; LLM só propõe e filtra | Ainda puxa para temas populares (ex.: buracos negros) |
+| LLMs repetem os mesmos temas quando se pede algo "aleatório" | Sorteio da área e da subárea no código; LLM só propõe e filtra; histórico dos últimos 30 temas no pedido | **Melhorou:** em 3 pedidos de Física, 51 de 60 candidatos eram distintos (repetiam os "efeitos" clássicos); com subárea, 60 de 60 |
+| A conferência de citações acusa citação inventada quando o LLM só corrigiu um erro de digitação | Comparação tolerante: até 1 palavra diferente a cada 10 | **Corrigido**; como efeito colateral, uma única palavra trocada num trecho longo passa |
 | Modelos que raciocinam esgotam o limite de saída antes de terminar o JSON | `max_completion_tokens=8000` | **Corrigido** |
-| Limites do plano grátis (8 mil tokens/minuto) | Repetições automáticas no erro 429; artigo limitado a 8.000 caracteres; uma chave por pessoa | Causa pausas, não falhas |
+| Limites do plano grátis (8 mil tokens/minuto) | Repetições automáticas no erro 429; artigo limitado a 12.000 caracteres (cerca de 4 mil tokens); uma chave por pessoa | Causa pausas, não falhas |
 | Notas do LLM variam entre execuções | Checklists com evidência em vez de porcentagens | A medir no Teste 3 |
 | Espera de 5 a 15 s por rodada de follow-up | Aceitável no V2; streaming para melhorar a percepção | |
 
@@ -389,7 +433,7 @@ No `.env`, use `LLM_BASE_URL=http://localhost:11434/v1`, qualquer valor em `LLM_
 |---|---|---|
 | 01/10/2026 | Nome: PROSA | Plataforma de Raciocínio, Oratória, Síntese e Argumentação |
 | 01/10/2026 | Projeto de estudo, sem objetivo comercial | O foco é aprender engenharia de LLM |
-| 01/10/2026 | Python + Streamlit no V1, com o `pipeline/` separado da interface | Uma linguagem só; foco nas partes de LLM |
+| 01/10/2026 | ~~Python + Streamlit no V1~~ (substituída em 03/10) | Uma linguagem só; foco nas partes de LLM |
 | 01/10/2026 | Começar pelos testes de risco, sem interface | Descobrir cedo o que pode inviabilizar o projeto |
 | 01/10/2026 | Ambiente virtual em `.venv` e comandos em Git Bash | Preferência da equipe |
 | 02/10/2026 | Transcrição oficial sem `initial_prompt` | Teste 1: o prompt faz o Whisper perder conteúdo |
@@ -398,6 +442,14 @@ No `.env`, use `LLM_BASE_URL=http://localhost:11434/v1`, qualquer valor em `LLM_
 | 02/10/2026 | Sorteio: o código sorteia, o LLM propõe, o código filtra a forma, o LLM confere o significado | LLMs são ruins em aleatoriedade; filtros de forma não bastam |
 | 02/10/2026 | Origem dos temas à escolha do usuário (`brasil` ou `mundo`) | O prompt em português puxava tudo para temas brasileiros |
 | 02/10/2026 | LLM pelo plano grátis do Groq (`gpt-oss-120b`), sem instalar Ollama | Começar sem baixar 5 GB; o código continua independente de fornecedor |
+| 03/10/2026 | Artigo enviado ao LLM: introdução + seções ligadas à pergunta, até 12 mil caracteres | Só o começo do artigo gerava rubricas rasas; o artigo inteiro estoura os 8 mil tokens/minuto |
+| 03/10/2026 | Rubrica: os pontos respondem à pergunta, sem linha do tempo; veredito exige que o artigo cubra os recortes da pergunta | Os pontos saíam genéricos ("o que é X") ou viravam uma lista de datas |
+| 03/10/2026 | Protótipo em React + FastAPI, em vez de Streamlit | A sessão tem cronômetro, gravação e várias etapas; num site próprio isso fica fluido. A lógica continua em Python |
+| 03/10/2026 | A rubrica fica só no servidor e só vai para o navegador no relatório | Princípio 8: a rubrica não chega à interface antes da avaliação |
+| 03/10/2026 | Identidade visual: logotipo "prosa", rosa #E8566C, grafite #2B2B2B, DM Sans | Pasta `PROSA logo brief/` |
+| 04/10/2026 | Avaliação do conteúdo (Teste 3) adiada | Foco agora na geração do desafio e no protótipo |
+| 04/10/2026 | O código sorteia área e subárea (`SUBAREAS`, em `areas.py`) | Sem subárea, o LLM repetia os temas clássicos de cada área |
+| 04/10/2026 | Conferência de citações aceita até 10% de palavras diferentes | O LLM corrige erros de digitação ao copiar, e isso virava alarme falso |
 
 ## Equipe
 
