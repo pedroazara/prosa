@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Qual a importância da proteína p53 na regulação do ciclo celular?",
+  "pergunta_final": "Qual a importância da proteína p53 na regulação do ciclo celular?",
+  "veredito": "responde",
+  "justificativa": "O artigo descreve detalhadamente o papel da proteína p53 no controle do ciclo celular, incluindo parada do crescimento, ativação de genes de parada, reparo do DNA e indução de apoptose, atendendo à pergunta sobre sua importância na regulação do ciclo celular.",
+  "area": "Biologia",
+  "origem": "mundo",
+  "artigo": "P53",
+  "link": "https://pt.wikipedia.org/wiki/P53",
+  "pontos_principais": [
+    {
+      "ideia": "A p53 interrompe o ciclo celular ao bloquear a progressão quando o DNA está danificado.",
+      "trecho_do_artigo": "A parada de crescimento interrompe a progressão do ciclo celular, impedindo a replicação do DNA danificado.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Ela ativa a transcrição de genes como p21 que mantêm a célula em fase G1 para permitir reparo do DNA.",
+      "trecho_do_artigo": "foi recentemente demonstrado como activar um gene chamado WAF1 (também chamado p21), cujo produto protéico para o ciclo celular na fase G1, antes que ocorra a replicação do DNA.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Se o dano for irreparável, a p53 induz apoptose, eliminando células potencialmente cancerosas.",
+      "trecho_do_artigo": "A apoptose é o \"último recurso\" para evitar a proliferação de células contendo DNA anormal.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Assim, a p53 preserva a estabilidade genômica e previne o desenvolvimento de tumores.",
+      "trecho_do_artigo": "É muito importante que as células em organismos multicelulares suprimam o câncer e corrijam erros na replicação, papel que a p53 desempenha.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T00:04:30"
+}

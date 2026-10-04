@@ -8,7 +8,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 import wikipedia
-from areas import AREAS
+from areas import AREAS, SUBAREAS
 
 # Artigos curtos demais não dão uma boa referência para avaliar a explicação.
 TAMANHO_MINIMO = 3000  # caracteres
@@ -50,11 +50,22 @@ def sortear_area() -> str:
     return random.choice(AREAS)
 
 
+def sortear_subarea(area: str) -> str:
+    return random.choice(SUBAREAS[area])
+
+
 def propor_candidatos(
-    cliente: OpenAI, modelo: str, area: str, origem: str, recentes: list[str], quantidade: int = 20
+    cliente: OpenAI,
+    modelo: str,
+    area: str,
+    origem: str,
+    recentes: list[str],
+    quantidade: int = 20,
+    subarea: str | None = None,
 ) -> list[Candidato]:
     """Pede ao LLM vários candidatos e devolve a lista já embaralhada."""
-    pedido = f"Proponha {quantidade} desafios da área: {area}.\n{ORIGENS[origem]}"
+    recorte = f"{area}, dentro de {subarea}" if subarea else area
+    pedido = f"Proponha {quantidade} desafios da área: {recorte}.\n{ORIGENS[origem]}"
     if recentes:
         pedido += "\n\nNão repita estes, que já foram usados:\n" + "\n".join(f"- {p}" for p in recentes)
 

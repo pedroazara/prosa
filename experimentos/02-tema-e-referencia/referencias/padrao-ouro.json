@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Por que o Reino Unido adotou o padrão ouro entre 1821 e 1931?",
+  "pergunta_final": "Por que o Reino Unido adotou o padrão ouro entre 1821 e 1931?",
+  "veredito": "responde",
+  "justificativa": "O artigo descreve o padrão‑ouro, menciona que o Reino Unido o utilizou para obter estabilidade e que, como potência hegemônica e centro financeiro, impôs o padrão ao mundo, além de explicar as regras de conversibilidade que garantiam confiança. Assim, cobre as razões da adoção britânica.",
+  "area": "Economia",
+  "origem": "mundo",
+  "artigo": "Padrão-ouro",
+  "link": "https://pt.wikipedia.org/wiki/Padrão-ouro",
+  "pontos_principais": [
+    {
+      "ideia": "O padrão‑ouro proporcionou estabilidade monetária ao Reino Unido.",
+      "trecho_do_artigo": "Com o padrão-ouro, utilizado principalmente pela Inglaterra, o sistema conseguiu estabilidade e permaneceu desde 1870 até o término da Primeira Guerra Mundial.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Como potência hegemônica e centro financeiro global, o Reino Unido impôs o padrão‑ouro ao mundo.",
+      "trecho_do_artigo": "o Reino Unido era a potência hegemônica e, por sua importância no comércio internacional, bem como pelo desenvolvimento acelerado de suas instituições financeiras, impôs ao mundo o padrão-ouro, quando Londres era o centro financeiro do mundo.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A obrigação de converter notas em ouro garantiu confiança no sistema monetário.",
+      "trecho_do_artigo": "Cada banco era obrigado a converter as notas bancárias por ele emitida em ouro (ou prata), sempre que solicitado pelo cliente.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Fixar a moeda a uma quantidade específica de ouro facilitou o comércio internacional.",
+      "trecho_do_artigo": "Cada país se comprometeu em fixar o valor de sua moeda em relação a uma quantidade específica de ouro, e a realizar políticas monetárias, de compra e venda de ouro, de modo a preservar tal paridade definida.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-03T22:26:03"
+}

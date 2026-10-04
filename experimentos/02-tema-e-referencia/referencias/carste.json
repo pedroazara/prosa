@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Como funciona o desenvolvimento de karst na Baía de Ha Long, Vietnã?",
+  "pergunta_final": "Como funciona o processo de formação de karst?",
+  "veredito": "reescrever",
+  "justificativa": "O artigo descreve o processo geral de formação de carste (karst), mas não menciona a Baía de Ha Long nem detalhes regionais. Como a pergunta original pede informações específicas sobre esse local, o artigo não responde diretamente; portanto, a pergunta deve ser reescrita para abordar o funcionamento geral da carstificação.",
+  "area": "Geologia",
+  "origem": "mundo",
+  "artigo": "Carste",
+  "link": "https://pt.wikipedia.org/wiki/Carste",
+  "pontos_principais": [
+    {
+      "ideia": "A carstificação inicia-se quando a água da chuva ou de rios superficiais combina-se com dióxido de carbono, formando ácido carbônico que dissolve a rocha.",
+      "trecho_do_artigo": "O processo de carstificação ou dissolução química se inicia pela combinação da água da chuva ou de rios superficiais com o dióxido de carbono (CO2) proveniente da atmosfera ou do solo",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O ácido carbônico reage com a calcita da rocha, gerando bicarbonato de cálcio que é levado pela água, removendo material da rocha.",
+      "trecho_do_artigo": "CaCO3 + H2CO3 → Ca(HCO3)2",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A água ácida percorre fissuras e fraturas da rocha, corroendo o carbonato de cálcio e ampliando essas vias até formar cavernas e outras formas típicas de karst.",
+      "trecho_do_artigo": "Ao passar pelas fissuras a água corrói o carbonato de cálcio (CaCO3) ou outros sais constituintes da rocha",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Um suprimento abundante e frequente de água, aliado a rochas permeáveis e fraturadas, é essencial para que a carstificação prossiga de forma eficaz.",
+      "trecho_do_artigo": "É fundamental um suprimento de água de grande volume e frequente",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T00:07:50"
+}

@@ -62,11 +62,12 @@ historico = carregar_historico()
 
 # 1. Área: código.
 area = args.area or sorteio.sortear_area()
-print(f"Área: {area}   |   Origem: {args.origem}\n")
+subarea = sorteio.sortear_subarea(area)
+print(f"Área: {area} ({subarea})   |   Origem: {args.origem}\n")
 
 # 2. Candidatos: LLM. Já voltam embaralhados pelo código.
 recentes = [item["pergunta"] for item in historico[-30:]]
-candidatos = sorteio.propor_candidatos(cliente, modelo, area, args.origem, recentes)
+candidatos = sorteio.propor_candidatos(cliente, modelo, area, args.origem, recentes, subarea=subarea)
 print(f"O LLM propôs {len(candidatos)} temas. Testando em ordem aleatória:\n")
 
 # 3. Filtros: primeiro os de forma (código, rápidos e grátis),
@@ -102,10 +103,11 @@ candidato, art, ref = escolha
 link = f"https://pt.wikipedia.org/wiki/{art['titulo'].replace(' ', '_')}"
 
 # 4. Conferência das citações: código. Não confie, verifique.
+texto_enviado = referencia.preparar_texto(art["texto"], candidato.pergunta)
 pontos = []
 for p in ref.pontos_principais:
     pontos.append({"ideia": p.ideia, "trecho_do_artigo": p.trecho_do_artigo,
-                   "trecho_verificado": referencia.trecho_existe(p.trecho_do_artigo, art["texto"])})
+                   "trecho_verificado": referencia.trecho_existe(p.trecho_do_artigo, texto_enviado)})
 
 if not 3 <= len(pontos) <= 5:
     print(f"\nAtenção: o LLM devolveu {len(pontos)} pontos, fora da faixa de 3 a 5 pedida.")
@@ -135,6 +137,7 @@ registro = {
     "veredito": ref.veredito,
     "justificativa": ref.justificativa,
     "area": area,
+    "subarea": subarea,
     "origem": args.origem,
     "artigo": art["titulo"],
     "link": link,
@@ -147,6 +150,6 @@ arquivo = REFERENCIAS / f"{nome_de_arquivo(art['titulo'])}.json"
 arquivo.write_text(json.dumps(registro, ensure_ascii=False, indent=2), encoding="utf-8")
 print(f"\nReferência salva em {arquivo.relative_to(PASTA)}")
 
-historico.append({"pergunta": ref.pergunta_final, "area": area, "artigo": art["titulo"],
+historico.append({"pergunta": ref.pergunta_final, "area": area, "subarea": subarea, "artigo": art["titulo"],
                   "data": registro["data"]})
 HISTORICO.write_text(json.dumps(historico, ensure_ascii=False, indent=2), encoding="utf-8")
