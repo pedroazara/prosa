@@ -1,0 +1,94 @@
+"""
+Sorteio do tema e montagem da referência oculta (o mesmo fluxo do passo4_referencia.py).
+
+É um gerador: vai devolvendo mensagens de andamento para a tela, e no fim o desafio.
+"""
+
+import json
+import sys
+from collections.abc import Iterator
+from datetime import datetime
+from pathlib import Path
+
+EXPERIMENTO_2 = Path(__file__).parent.parent / "experimentos" / "02-tema-e-referencia"
+sys.path.insert(0, str(EXPERIMENTO_2))
+
+import llm  # noqa: E402
+import referencia  # noqa: E402
+import sorteio  # noqa: E402
+from areas import AREAS  # noqa: E402
+
+ORIGENS = sorted(sorteio.ORIGENS)
+HISTORICO = EXPERIMENTO_2 / "historico_temas.json"  # o mesmo do passo 4, para não repetir temas
+MAX_LEITURAS = 4  # cada leitura de artigo gasta alguns milhares de tokens
+
+cliente = llm.criar_cliente().with_options(max_retries=6)
+modelo = llm.modelo()
+
+
+def _carregar_historico() -> list[dict]:
+    if HISTORICO.exists():
+        return json.loads(HISTORICO.read_text(encoding="utf-8"))
+    return []
+
+
+def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
+    """Devolve ("status", mensagem) durante o processo e, no fim, ("pronto", desafio) ou ("erro", mensagem)."""
+    historico = _carregar_historico()
+    area = area or sorteio.sortear_area()
+    subarea = sorteio.sortear_subarea(area)
+    yield "status", f"Área: {area} ({subarea}). Pedindo candidatos ao LLM…"
+
+    recentes = [item["pergunta"] for item in historico[-30:]]
+    candidatos = sorteio.propor_candidatos(cliente, modelo, area, origem, recentes, subarea=subarea)
+    yield "status", f"{len(candidatos)} temas propostos. Procurando um com bom artigo…"
+
+    artigos_usados = {item["artigo"] for item in historico}
+    log = []
+    escolha = None
+    leituras = 0
+    for c in candidatos:
+        art, motivo = sorteio.buscar_artigo(c, artigos_usados)
+        if art is None:
+            log.append(f"✗ {c.pergunta} — {motivo}")
+            continue
+        if leituras == MAX_LEITURAS:
+            break
+        leituras += 1
+        yield "status", f"Lendo o artigo “{art['titulo']}”…"
+        ref = referencia.montar(cliente, modelo, c.pergunta, art)
+        log.append(f"→ {art['titulo']}: {ref.veredito}. {ref.justificativa}")
+        if ref.veredito != "outro_assunto" and ref.pontos_principais:
+            escolha = (c, art, ref)
+            break
+        yield "status", "O artigo não serviu. Tentando outro…"
+
+    if escolha is None:
+        yield "erro", "Nenhum candidato passou nos filtros. Tente sortear de novo."
+        return
+
+    c, art, ref = escolha
+    texto_enviado = referencia.preparar_texto(art["texto"], c.pergunta)
+    desafio = {
+        "pergunta_original": c.pergunta,
+        "pergunta_final": ref.pergunta_final,
+        "veredito": ref.veredito,
+        "justificativa": ref.justificativa,
+        "area": area,
+        "subarea": subarea,
+        "origem": origem,
+        "artigo": art["titulo"],
+        "link": f"https://pt.wikipedia.org/wiki/{art['titulo'].replace(' ', '_')}",
+        "pontos_principais": [
+            {"ideia": p.ideia, "trecho_do_artigo": p.trecho_do_artigo,
+             "trecho_verificado": referencia.trecho_existe(p.trecho_do_artigo, texto_enviado)}
+            for p in ref.pontos_principais
+        ],
+        "modelo": modelo,
+        "data": datetime.now().isoformat(timespec="seconds"),
+        "log": log,
+    }
+    historico.append({"pergunta": desafio["pergunta_final"], "area": area, "subarea": subarea,
+                      "artigo": art["titulo"], "data": desafio["data"]})
+    HISTORICO.write_text(json.dumps(historico, ensure_ascii=False, indent=2), encoding="utf-8")
+    yield "pronto", desafio

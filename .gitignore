@@ -16,3 +16,6 @@ experimentos/01-whisper/resultados
 
 # Histórico local de temas sorteados
 experimentos/02-tema-e-referencia/historico_temas.json
+
+# Sessões do protótipo (têm a transcrição da sua fala)
+prototipo/sessoes/
