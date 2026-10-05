@@ -6,8 +6,8 @@ PROSA é um treinador de aprendizado e comunicação. O usuário recebe um tema 
 
 > **Status:** Fase 0, testes de risco.
 > - Transcrição (Teste 1) e sorteio de tema com referência (Teste 2): funcionando, como scripts em [`experimentos/`](experimentos/).
-> - Protótipo web em [`prototipo/`](prototipo/): roda uma sessão completa (sorteio, pesquisa, gravação, transcrição e métricas de fala).
-> - Avaliação do conteúdo da explicação (Teste 3): fica para depois. Por enquanto, o relatório mostra a rubrica e o usuário marca à mão os pontos que cobriu.
+> - Protótipo web em [`prototipo/`](prototipo/): roda uma sessão completa (sorteio, pesquisa, gravação, transcrição, métricas de fala e avaliação do conteúdo).
+> - Avaliação do conteúdo (Teste 3): primeira versão funcionando. O usuário marca à mão os pontos que cobriu e depois vê a avaliação da IA, com a evidência de cada ponto; as duas ficam salvas para medir a concordância.
 
 ---
 
@@ -174,10 +174,17 @@ prosa/
       referencia.py             ← conferência do artigo + rubrica (módulo reutilizável)
       passo1_wikipedia.py … passo4_referencia.py
       referencias/              ← referências geradas (usadas no Teste 3)
+    03-avaliacao/               ← Teste 3: avaliação do conteúdo da explicação
+      avaliacao.py              ← LLM como avaliador + conferência das citações (módulo reutilizável)
+      exemplos.json             ← explicações de teste com o gabarito humano (mini-eval)
+      passo1_exemplos.py        ← roda o avaliador nos exemplos e compara com o gabarito
+      passo2_comparar.py        ← concordância humano × IA nas sessões gravadas
   prototipo/                    ← protótipo web: uma sessão completa no navegador
     servidor.py                 ← API (FastAPI); serve também o site compilado
     desafio.py                  ← sorteio + referência (usa os módulos do Teste 2)
     fala.py                     ← transcrição e métricas de fala (do Teste 1)
+    biblioteca.py               ← temas já gerados, para reusar sem gastar chamadas de IA
+    temas/                      ← um JSON por tema (pergunta + referência + rubrica)
     sessoes/                    ← sessões gravadas: rubrica + transcrição (fora do git)
     web/                        ← site em React (Vite)
       src/componentes/          ← telas: Início, Pesquisa, Explicação, Relatório, painel do desenvolvedor
@@ -242,17 +249,23 @@ Detalhes em [experimentos/02-tema-e-referencia/GUIA.md](experimentos/02-tema-e-r
 - [x] Conferência de citações tolerante: aceita até 1 palavra diferente a cada 10, porque o LLM corrige erros de digitação do artigo ao copiar.
 - [x] O código sorteia também uma subárea (ex.: Física → acústica), para espalhar os temas.
 
-#### Teste 3: avaliação: ⏸ adiado
-
-O protótipo já salva cada sessão (rubrica + transcrição) em `prototipo/sessoes/`. Esses arquivos servem de dados para este teste quando ele for retomado.
+#### Teste 3: avaliação: 🟡 primeira versão
 
 O LLM avaliador concorda com a avaliação humana?
 
-- [ ] Escolher 2 referências.
-- [ ] Cada integrante pesquisa por 5 minutos e grava uma explicação de 2 minutos.
-- [ ] Cada integrante avalia à mão as duas gravações, **antes** de ver a avaliação do LLM.
-- [ ] Experimento 03: o LLM recebe transcrição, rubrica e referência e devolve uma avaliação com evidências.
-- [ ] Comparar as avaliações: humano × humano e humano × LLM.
+- [x] Experimento 03 (`avaliacao.py`): o LLM recebe a transcrição, a rubrica e um trecho da referência (até 6 mil caracteres) e devolve:
+  - para cada ponto da rubrica: `coberto` / `parcial` / `nao_coberto`, com a justificativa e a evidência citada da fala;
+  - outros pontos corretos, fora da rubrica (não penalizam);
+  - afirmações erradas, só quando a referência as desmente, com o trecho da fala e o da referência;
+  - um comentário sobre a organização e uma sugestão para a próxima tentativa.
+- [x] Toda citação é conferida no código (`trecho_existe`), na fala ou na referência. As que não batem aparecem marcadas na tela.
+- [x] A referência passa a ser salva junto com o tema (`texto_referencia`). Temas antigos buscam o artigo de novo na Wikipedia.
+- [x] Mini-eval com 4 explicações escritas no estilo da transcrição (`exemplos.json`): 15/16 vereditos iguais ao gabarito na primeira rodada, e 9/9 citações da fala conferidas. Cada chamada usa uns 3 mil tokens de entrada.
+- [x] No relatório, a pessoa marca à mão o que cobriu **antes** de ver a IA. As duas avaliações ficam salvas na sessão (`marcacoes_humanas` e `avaliacao`), e `passo2_comparar.py` mede a concordância.
+- [ ] Gravar explicações de verdade: as 3 sessões salvas até 04/10 têm transcrições vazias ou alucinadas pelo Whisper.
+- [ ] Cada integrante avalia à mão as mesmas gravações e compara: humano × humano e humano × LLM.
+
+Ponto em aberto: numa fala fora do assunto, o avaliador às vezes lista as frases como "afirmações erradas" sobre o tema. É discutível ("o relevo se forma pelos vulcões" contradiz a definição de carste), mas vale observar com dados reais.
 
 ### V1: MVP
 
@@ -289,7 +302,17 @@ Resposta → Análise → Pergunta → Resposta → Nova pergunta
 
 ### V4: outros modos
 
-- **Feynman:** explicar em linguagem simples.
+Já no protótipo (`prototipo/web/src/modos.ts`), só com regras de tempo e de tema, sem IA a mais:
+
+- **Relâmpago:** 30 s de pesquisa e 30 s de explicação, com um tema salvo.
+- **Elevator pitch:** 1 minuto e até 150 palavras.
+- **Maratona:** 3 temas salvos seguidos, sem repetir, com um resumo das métricas no fim.
+- **Feynman:** por enquanto, só a instrução de explicar para uma criança. A IA ainda não avalia simplicidade nem jargão.
+- **Personalizado:** tempos em minutos ou sem limite, quantidade de temas, limite de palavras, temas novos ou salvos e estilo Feynman.
+
+Ainda por fazer:
+
+- **Feynman:** explicar em linguagem simples, com a IA apontando jargão.
 - **Entrevista:** perguntas cada vez mais difíceis.
 - **Debate:** defender uma posição sorteada e responder a objeções.
 - **Públicos diferentes:** explicar o mesmo tema para uma criança, um estudante e um especialista.

@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Qual a importância da arquitetura de madeira do Templo de Hōryū-ji, no Japão, para a preservação de técnicas construtivas antigas?",
+  "pergunta_final": "Qual a importância da arquitetura de madeira do Templo de Hōryū-ji, no Japão, para a preservação de técnicas construtivas antigas?",
+  "veredito": "responde",
+  "justificativa": "O artigo trata da arquitetura de madeira do Hōryū-ji e destaca seu papel como uma das construções de madeira mais antigas, além de evidenciar como ela preserva técnicas construtivas antigas, atendendo ao que a pergunta pede.",
+  "area": "Arquitetura",
+  "origem": "mundo",
+  "artigo": "Horyu-ji",
+  "link": "https://pt.wikipedia.org/wiki/Horyu-ji",
+  "pontos_principais": [
+    {
+      "ideia": "O pagode de Hōryū-ji é reconhecido como uma das mais antigas construções de madeira existentes no mundo, servindo como exemplo vivo das técnicas de construção em madeira da época.",
+      "trecho_do_artigo": "O pagode é um templo amplamente reconhecido como uma das mais antigas construções de madeira existentes no mundo",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A arquitetura de Hōryū-ji incorpora uma fusão única de elementos do período Asuka e influências da China e da Coreia, demonstrando como técnicas construtivas antigas foram transmitidas e adaptadas.",
+      "trecho_do_artigo": "Com a sua origem remonta ao início do século VII, a reconstrução permitiu Hōryū-ji absorver e apresentar uma fusão única de elementos iniciais estilo do período Asuka",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Como a única estrutura de madeira sobrevivente do seu período, Hōryū-ji funciona como uma pista viva para estimar as técnicas de construção dos templos Baekje da Coreia.",
+      "trecho_do_artigo": "uma vez que não existe arquitetura sobrevivente do mesmo período na Coreia, Hōryū-ji, sendo a única estrutura de madeira existente, ainda que parcialmente a partir de tal momento, é um ser vivo dica para estimar o que templos Baekje teria parecido",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Detalhes específicos da construção, como o layout lado‑a‑lado do Kondō e da pagode e a espaçamento mais fino das colunas, preservam características construtivas que diferem dos padrões típicos da época.",
+      "trecho_do_artigo": "Um dos mais notáveis é o seu layout... organizando o Kondō e pagoda lado-a-lado no pátio",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T00:06:16"
+}

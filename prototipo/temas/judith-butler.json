@@ -1,0 +1,44 @@
+{
+  "pergunta_original": "Como funciona o conceito de “performatividade” na obra de Judith Butler, estudada por filósofos brasileiros?",
+  "pergunta_final": "Como funciona o conceito de performatividade na obra de Judith Butler?",
+  "veredito": "reescrever",
+  "justificativa": "A pergunta original solicita explicação do conceito de performatividade na obra de Judith Butler como estudada por filósofos brasileiros, porém o artigo não menciona nenhum estudo de filósofos brasileiros, abordando apenas a própria teoria de Butler. Assim, a pergunta foi reescrita para focar no funcionamento da performatividade na obra de Butler.",
+  "area": "Filosofia",
+  "subarea": "filosofia da linguagem",
+  "origem": "brasil",
+  "artigo": "Judith Butler",
+  "link": "https://pt.wikipedia.org/wiki/Judith_Butler",
+  "pontos_principais": [
+    {
+      "ideia": "O gênero não é uma essência, mas resulta de atos repetitivos que produzem a aparência de identidade estável.",
+      "trecho_do_artigo": "Central à sua teoria está a noção de performatividade de gênero, segundo a qual o gênero não é uma essência, mas um conjunto de atos repetitivos que envolvem o corpo e produzem a aparência de uma identidade estável.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A performatividade pressupõe a presença de uma plateia social que observa e valida as performances.",
+      "trecho_do_artigo": "Butler argumenta que o conceito de gênero é melhor entendido como performativo, o que presume a existência de uma plateia social.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A própria performance do gênero é o que cria o gênero, e não uma escolha ou imposição prévia.",
+      "trecho_do_artigo": "Butler argumenta que a própria performance do gênero cria o gênero.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A performatividade depende da iterabilidade, ou seja, da repetição regularizada de normas que sustenta a constituição do sujeito.",
+      "trecho_do_artigo": "A performatividade não pode ser entendida fora de um processo de iterabilidade, repetições regularizadas e restritas de normas.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Essa repetição não é realizada por um sujeito; é ela que capacita um sujeito e constitui sua condição temporal.",
+      "trecho_do_artigo": "Essa repetição não é realizada por um sujeito; essa repetição é o que capacita um sujeito e constitui a condição temporal para o sujeito.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T13:36:24",
+  "log": [
+    "→ Linguagem: outro_assunto. O artigo trata do conceito geral de linguagem, sua história, propriedades e aspectos filosóficos, mas não menciona o Congresso Nacional de Filosofia da Linguagem de 2019 nem discute a integração de pesquisadores brasileiros. Portanto, o conteúdo não serve de referência para a pergunta.",
+    "→ Judith Butler: reescrever. A pergunta original solicita explicação do conceito de performatividade na obra de Judith Butler como estudada por filósofos brasileiros, porém o artigo não menciona nenhum estudo de filósofos brasileiros, abordando apenas a própria teoria de Butler. Assim, a pergunta foi reescrita para focar no funcionamento da performatividade na obra de Butler."
+  ]
+}

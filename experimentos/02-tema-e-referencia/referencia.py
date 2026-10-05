@@ -91,19 +91,19 @@ def _sem_acento(texto: str) -> str:
     return unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode().lower()
 
 
-def preparar_texto(texto: str, pergunta: str) -> str:
+def preparar_texto(texto: str, pergunta: str, limite: int = LIMITE_ARTIGO) -> str:
     """Escolhe o que do artigo vai para o LLM: a introdução e as seções mais ligadas à pergunta.
 
     Cortar só o começo deixava de fora justamente as seções que explicam causas e
     mecanismos. Aqui as seções são ordenadas por quantas palavras da pergunta elas
     contêm, entram as melhores até o limite e voltam à ordem original do artigo.
     """
-    if len(texto) <= LIMITE_ARTIGO:
+    if len(texto) <= limite:
         return texto
 
     # re.split com grupo de captura devolve [intro, título1, corpo1, título2, corpo2...]
     partes = re.split(r"^=+\s*(.+?)\s*=+\s*$", texto, flags=re.MULTILINE)
-    intro = partes[0].strip()[:LIMITE_INTRO]
+    intro = partes[0].strip()[: min(LIMITE_INTRO, limite)]
     secoes = [(partes[i], f"== {partes[i]} ==\n{partes[i + 1].strip()}") for i in range(1, len(partes) - 1, 2)]
     secoes = [(t, c) for t, c in secoes if _sem_acento(t) not in SECOES_IGNORADAS]
 
@@ -116,14 +116,14 @@ def preparar_texto(texto: str, pergunta: str) -> str:
     escolhidas, usado = set(), len(intro)
     for i in sorted(range(len(secoes)), key=lambda i: nota(secoes[i]), reverse=True):
         corpo = secoes[i][1]
-        if usado + len(corpo) <= LIMITE_ARTIGO:
+        if usado + len(corpo) <= limite:
             escolhidas.add(i)
             usado += len(corpo)
     return "\n\n".join([intro] + [secoes[i][1] for i in sorted(escolhidas)])
 
 
-def montar(cliente: OpenAI, modelo: str, pergunta: str, artigo: dict) -> Referencia:
-    texto = preparar_texto(artigo["texto"], pergunta)
+def montar(cliente: OpenAI, modelo: str, pergunta: str, artigo: dict, limite: int = LIMITE_ARTIGO) -> Referencia:
+    texto = preparar_texto(artigo["texto"], pergunta, limite)
     resposta = cliente.chat.completions.parse(
         model=modelo,
         messages=[

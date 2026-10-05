@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Como funciona o processo de contato na produção de ácido sulfúrico?",
+  "pergunta_final": "Como funciona o processo de contato na produção de ácido sulfúrico?",
+  "veredito": "responde",
+  "justificativa": "O artigo contém a seção \"Processo de contato\" que descreve detalhadamente as etapas químicas e o papel do catalisador na produção de ácido sulfúrico, correspondendo exatamente ao que a pergunta solicita.",
+  "area": "Química",
+  "origem": "mundo",
+  "artigo": "Ácido sulfúrico",
+  "link": "https://pt.wikipedia.org/wiki/Ácido_sulfúrico",
+  "pontos_principais": [
+    {
+      "ideia": "Na primeira etapa, o enxofre é queimado para produzir dióxido de enxofre (SO₂).",
+      "trecho_do_artigo": "Na primeira etapa, o enxofre é queimado para produzir dióxido de enxofre.\n\nS (s) + O2 (g) → SO2 (g)",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O SO₂ é oxidado a trióxido de enxofre (SO₃) na presença de oxigênio e pentóxido de vanádio como catalisador, reação exotérmica e reversível.",
+      "trecho_do_artigo": "Este é então oxidado para trióxido de enxofre utilizando o oxigênio na presença de pentóxido de vanádio como catalisador. ... 2 SO2 (g) + O2 (g)  → 2 SO3 (g) (na presença de V2O5)",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O SO₃ formado é absorvido para gerar oleum (ácido sulfúrico fumegante), que posteriormente é diluído em água para produzir ácido sulfúrico concentrado.",
+      "trecho_do_artigo": "O trióxido de enxofre é absorvido formando H2SO4 a 97-98% para formar o oleum (H2S2O7), também conhecido como ácido sulfúrico fumegante. O oleum é então diluído em água para formar o ácido sulfúrico concentrado.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A reação direta de SO₃ com água é extremamente exotérmica e gera um aerossol corrosivo, por isso o processo utiliza a formação de oleum antes da diluição.",
+      "trecho_do_artigo": "Dissolver diretamente SO3 em água não é factível devido à extremamente forte natureza exotérmica da reação do trióxido de enxofre com água. A reação forma um aerossol corrosivo que é muito difícil de separar, ao contrário do líquido.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T00:08:49"
+}

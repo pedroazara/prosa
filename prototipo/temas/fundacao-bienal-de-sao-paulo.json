@@ -1,0 +1,39 @@
+{
+  "pergunta_original": "De que forma a Fundação Bienal de São Paulo exemplifica a arquitetura sustentável?",
+  "pergunta_final": "Quais são as principais características arquitetônicas do Pavilhão da Bienal de São Paulo?",
+  "veredito": "reescrever",
+  "justificativa": "O artigo descreve detalhadamente a arquitetura do Pavilhão da Bienal, mas não menciona aspectos de sustentabilidade; portanto, a pergunta original não pode ser respondida com o conteúdo disponível.",
+  "area": "Arquitetura",
+  "origem": "brasil",
+  "artigo": "Fundação Bienal de São Paulo",
+  "link": "https://pt.wikipedia.org/wiki/Fundação_Bienal_de_São_Paulo",
+  "pontos_principais": [
+    {
+      "ideia": "O Pavilhão da Bienal possui três pavimentos e um auditório, totalizando 25 mil metros quadrados.",
+      "trecho_do_artigo": "O Pavilhão da Bienal é dividido por três pavimentos e um auditório, que somam 25 mil m².",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "As curvas, marca registrada de Oscar Niemeyer, estão presentes nos pavimentos do edifício.",
+      "trecho_do_artigo": "Os pavimentos possuem uma das principais características de Niemeyer - as curvas, presentes em tantos outros projetos do arquiteto, como o Auditório do Ibirapuera e o Edifício Copan, ambos localizados em São Paulo.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A circulação interna inclui elevadores, escadas, largas rampas e escadas rolantes.",
+      "trecho_do_artigo": "Os andares são ligados por elevadores, escadas, largas rampas e escadas rolantes.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A fachada externa apresenta brises verticais de alumínio.",
+      "trecho_do_artigo": "Em seu exterior, é possível ver que o pavilhão possui brises verticais de alumínio, que compõem a fachada.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O edifício ocupa um espaço de 250 por 50 metros e tem área total construída de 39.800 metros quadrados.",
+      "trecho_do_artigo": "A edificação ocupa um espaço de 250 por 50 m²  e tem uma área total construída de 39800 m.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-02T10:25:29"
+}

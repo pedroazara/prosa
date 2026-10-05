@@ -1,0 +1,38 @@
+{
+  "pergunta_original": "Por que o decaimento beta retardado de nêutrons é relevante para a segurança de reatores nucleares?",
+  "pergunta_final": "Por que o decaimento beta retardado de nêutrons é relevante para a segurança de reatores nucleares?",
+  "veredito": "responde",
+  "justificativa": "O artigo descreve detalhadamente o decaimento beta retardado dos produtos de fissão, seu papel na geração de calor residual após o desligamento e as consequências para a segurança do reator, atendendo à pergunta sobre a relevância desse fenômeno.",
+  "area": "Física",
+  "subarea": "física nuclear",
+  "origem": "mundo",
+  "artigo": "Calor por decaimento nuclear",
+  "link": "https://pt.wikipedia.org/wiki/Calor_por_decaimento_nuclear",
+  "pontos_principais": [
+    {
+      "ideia": "O decaimento beta retardado dos produtos de fissão gera calor residual que corresponde a cerca de 6,5% da potência do núcleo antes do desligamento.",
+      "trecho_do_artigo": "13 MeV (6,5% da energia total da fissão) ... sendo depositados no núcleo do reator devido ao decaimento beta retardado dos produtos da fissão... contribui com 6,5% da produção normal de calor do reator.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Esse calor residual deve ser removido; a falha no sistema de arrefecimento pode elevar a temperatura do núcleo a níveis inseguros, provocando danos ao combustível ou fusão do núcleo.",
+      "trecho_do_artigo": "Se nenhum sistema de arrefecimento estiver a funcionar ... este calor residual pode fazer com que o núcleo do reator atinja temperaturas inseguras ... podem levar a danos ... ou mesmo a danos estruturais graves no núcleo (fusão).",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O calor residual decai lentamente, permanecendo significativo por horas a dias após o desligamento, o que obriga a manutenção de sistemas de resfriamento por longos períodos.",
+      "trecho_do_artigo": "Cerca de 1 hora após o desligamento, o calor residual será de aproximadamente 1,5% ... Após um dia, o calor residual cai para 0,4% ... calor residual suficiente continua a ser produzido nas barras de combustível irradiado para exigir que elas permaneçam por, no mínimo, um ano, tipicamente de 10 a 20 anos.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O decaimento beta retardado é a principal fonte de calor em um reator recém-desligado, tornando‑o central nas análises de segurança pós‑desligamento.",
+      "trecho_do_artigo": "A principal fonte de produção de calor num reator recém-desligado deve‑se ao decaimento beta de novos elementos radioativos produzidos recentemente a partir de fragmentos de fissão ...",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T14:55:29",
+  "log": [
+    "→ Calor por decaimento nuclear: responde. O artigo descreve detalhadamente o decaimento beta retardado dos produtos de fissão, seu papel na geração de calor residual após o desligamento e as consequências para a segurança do reator, atendendo à pergunta sobre a relevância desse fenômeno."
+  ]
+}

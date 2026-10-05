@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { mmss, type Sessao } from "../api";
 import Anel, { useContagem } from "./Anel";
+import { sons } from "../sons";
 import BarraStatus from "./BarraStatus";
 import Icone from "./Icone";
 
 type Props = {
   sessao: Sessao;
-  limite: number;
+  limite: number | null;
+  instrucao?: string;
+  rodada?: string;
   tempoEsgotado: boolean;
   analisando: boolean;
   aoEnviar: (audio: Blob) => void;
@@ -15,7 +18,7 @@ type Props = {
 type Estado = "pronto" | "gravando" | "revisao";
 const BARRAS = 36;
 
-export default function Explicacao({ sessao, limite, tempoEsgotado, analisando, aoEnviar }: Props) {
+export default function Explicacao({ sessao, limite, instrucao, rodada, tempoEsgotado, analisando, aoEnviar }: Props) {
   const [estado, setEstado] = useState<Estado>("pronto");
   const [audio, setAudio] = useState<Blob | null>(null);
   const [urlAudio, setUrlAudio] = useState<string | null>(null);
@@ -78,11 +81,15 @@ export default function Explicacao({ sessao, limite, tempoEsgotado, analisando, 
     gravador.current = rec;
     inicio.current = Date.now();
     rec.start();
+    sons.gravar();
     setEstado("gravando");
   }
 
   function parar() {
-    if (gravador.current?.state === "recording") gravador.current.stop();
+    if (gravador.current?.state === "recording") {
+      gravador.current.stop();
+      sons.pararGravacao();
+    }
     limpar.current();
   }
 
@@ -114,11 +121,16 @@ export default function Explicacao({ sessao, limite, tempoEsgotado, analisando, 
               <Icone nome="timer_off" tamanho={18} /> O tempo de pesquisa acabou
             </span>
           )}
-          <span className="sobretitulo">Tópico de síntese</span>
+          <span className="sobretitulo">
+            {sessao.area}
+            {rodada && ` · ${rodada}`}
+          </span>
           <h1 className="pergunta">{sessao.pergunta}</h1>
           <p className="lede">
-            Feche as fontes, guarde as anotações e explique os pontos principais em até {mmss(limite)}. Foque na causa e no mecanismo, sem
-            entrar em detalhes.
+            {instrucao ??
+              (limite === null
+                ? "Explique os pontos principais, sem consultar nada."
+                : `Explique os pontos principais em até ${mmss(limite)}, sem consultar nada.`)}
           </p>
         </div>
 
@@ -129,7 +141,7 @@ export default function Explicacao({ sessao, limite, tempoEsgotado, analisando, 
             </button>
             <div className="gravador-texto">
               <strong>Pronto para começar?</strong>
-              <span>A gravação para sozinha quando o tempo acabar.</span>
+              <span>{limite === null ? "Sem limite de tempo: pare quando terminar." : "A gravação para sozinha quando o tempo acabar."}</span>
             </div>
             {erroMic && (
               <p className="erro-inline">
@@ -141,7 +153,7 @@ export default function Explicacao({ sessao, limite, tempoEsgotado, analisando, 
 
         {estado === "gravando" && (
           <div className="cartao cartao-destaque gravador">
-            <Anel restante={restante} total={limite} legenda="restantes" tamanho={180} />
+            <Anel restante={restante} total={limite} legenda={limite === null ? "gravando" : "restantes"} tamanho={180} />
             <div className="medidor" aria-hidden>
               {Array.from({ length: BARRAS }, (_, i) => (
                 <span key={i} ref={(el) => { barras.current[i] = el; }} />

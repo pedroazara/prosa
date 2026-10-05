@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Como funciona a técnica de esmalte na cerâmica persa?",
+  "pergunta_final": "Como funciona a técnica de esmalte (vidrado) na cerâmica?",
+  "veredito": "reescrever",
+  "justificativa": "O artigo trata da técnica geral de esmalte (vidrado) mas não aborda especificamente a cerâmica persa, portanto a pergunta original não pode ser respondida com ele. Reescrevi a pergunta para focar no funcionamento da técnica de esmalte na cerâmica em geral, assunto coberto pelo artigo.",
+  "area": "Artes",
+  "origem": "mundo",
+  "artigo": "Esmalte",
+  "link": "https://pt.wikipedia.org/wiki/Esmalte",
+  "pontos_principais": [
+    {
+      "ideia": "O esmalte consiste em um pó de vidro que, ao ser aquecido entre 750 °C e 850 °C, funde, escorre e endurece formando um revestimento vítreo sobre a cerâmica.",
+      "trecho_do_artigo": "o esmalte, ou esmalte vidrado é um material obtido pela fusão de vidro em pó com um suporte através do aquecimento em forno, normalmente entre 750 e 850ºC. O pó é fundido, escorre, e endurece depois na forma de um revestimento vítreo de grande durabilidade.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O pó de esmalte pode ser obtido pulverizando vidro colorido ou misturando vidro incolor com óxidos metálicos que dão cor ao revestimento.",
+      "trecho_do_artigo": "O pó para esmalte podia ser obtido de duas formas: quer através da pulverização de vidro colorido, quer pela mistura de pó de vidro incolor com pigmentos como óxidos de metais.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O desenho é aplicado à mão ou sobre incisões na superfície cerâmica e, após o aquecimento, o esmalte derrete, reage com a camada de óxido formada e adere firmemente ao suporte, criando o vidrado.",
+      "trecho_do_artigo": "Os desenhos podiam ser executados à mão ou por cima de incisões de contorno... Uma vez pintados, os recipientes ... necessitavam de ser aquecidos a uma temperatura suficientemente alta para derreter o pó aplicado.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "As cores do esmalte são obtidas pela adição de óxidos de metais, como ferro, cobre ou cobalto, que, incorporados ao vidro fundido, produzem diferentes tonalidades.",
+      "trecho_do_artigo": "A cor no esmalte é obtida através da adição de vários minerais, sobretudo óxidos de metal como cobalto, praseodímio, ferro ou neodímio.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T00:10:00"
+}

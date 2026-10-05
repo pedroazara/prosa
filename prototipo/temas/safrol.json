@@ -1,0 +1,35 @@
+{
+  "pergunta_original": "Por que o safrol foi proibido como precursor de MDMA na década de 1990 nos Estados Unidos?",
+  "pergunta_final": "Por que o safrol é considerado um precursor controlado na produção de MDMA?",
+  "veredito": "reescrever",
+  "justificativa": "O artigo menciona que o safrol é usado como precursor na síntese de MDMA e está listado como substância controlada, mas não aborda a proibição específica na década de 1990 nos Estados Unidos. Por isso a pergunta foi reformulada para algo que o texto cobre.",
+  "area": "Química",
+  "subarea": "química orgânica",
+  "origem": "mundo",
+  "artigo": "Safrol",
+  "link": "https://pt.wikipedia.org/wiki/Safrol",
+  "pontos_principais": [
+    {
+      "ideia": "O safrol é usado como matéria‑prima na síntese da droga ecstasy (MDMA).",
+      "trecho_do_artigo": "O safrol também é usado como precursor na síntese da droga ecstasy (MDMA, 3,4-metilenodioximetanfetamina).",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Devido ao seu papel na fabricação de MDMA, o safrol foi incluído na lista de precursores da Tabela I da Convenção das Nações Unidas contra o Tráfico Ilícito de Entorpecentes e Substâncias Psicotrópicas.",
+      "trecho_do_artigo": "O safrol está listado como precursor da Tabela I da Convenção das Nações Unidas contra o Tráfico Ilícito de Entorpecentes e Substâncias Psicotrópicas.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Nos Estados Unidos, essa classificação o coloca como substância da Lista I, sujeita a controle rigoroso.",
+      "trecho_do_artigo": "Nos Estados Unidos, o safrol é atualmente um produto químico da Lista I.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A mesma preocupação levou o safrol a ser classificado como precursor da Categoria I na regulamentação europeia, refletindo seu uso ilícito na produção de MDMA.",
+      "trecho_do_artigo": "Devido ao seu papel na fabricação de MDMA, o safrol, o isosafrol e o piperonal são precursores da Categoria I de acordo com o regulamento nº 273/2004 da Comunidade Europeia.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T00:14:01"
+}

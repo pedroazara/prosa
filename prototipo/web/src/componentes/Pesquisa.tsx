@@ -1,9 +1,8 @@
 import type { Sessao } from "../api";
 import Anel, { useContagem } from "./Anel";
-import BarraStatus from "./BarraStatus";
 import Icone from "./Icone";
 
-type Props = { sessao: Sessao; duracao: number; aoTerminar: (tempoEsgotado: boolean) => void };
+type Props = { sessao: Sessao; duracao: number | null; rodada?: string; aoTerminar: (tempoEsgotado: boolean) => void };
 
 const DICAS = [
   { icone: "psychology", texto: "Procure o porquê e o como, não só o quê." },
@@ -12,34 +11,24 @@ const DICAS = [
   { icone: "do_not_disturb_on", texto: "Quando o tempo acabar, feche as abas e guarde as anotações: a explicação é sem consulta." },
 ];
 
-export default function Pesquisa({ sessao, duracao, aoTerminar }: Props) {
+export default function Pesquisa({ sessao, duracao, rodada, aoTerminar }: Props) {
   const restante = useContagem(duracao, true, () => aoTerminar(true));
   const busca = encodeURIComponent(sessao.pergunta);
 
   return (
     <section className="sala">
-      <BarraStatus
-        passo="Passo 1 de 3 · Pesquisa"
-        direita={
-          <>
-            <Icone nome="timer" tamanho={18} /> Cronômetro ativo
-          </>
-        }
-      />
-
       <div className="sala-centro">
         <div className="sala-tema">
-          <span className="sobretitulo">{sessao.area} · Tema sorteado</span>
+          <span className="sobretitulo">
+            {sessao.area}
+            {rodada && ` · ${rodada}`}
+          </span>
           <h1 className="pergunta">{sessao.pergunta}</h1>
-          <p className="lede">
-            Pesquise em outra aba. Quando o tempo acabar, você vai explicar os pontos principais em voz alta, sem
-            consultar nada.
-          </p>
         </div>
 
         <div className="pesquisa-grade">
           <div className="cartao cartao-destaque pesquisa-tempo">
-            <Anel restante={restante} total={duracao} legenda="de pesquisa" />
+            <Anel restante={restante} total={duracao} legenda={duracao === null ? "pesquisando · sem limite" : "de pesquisa"} />
             <button className="botao primario largo" onClick={() => aoTerminar(false)}>
               Terminei: fechar as fontes
               <Icone nome="arrow_forward" />

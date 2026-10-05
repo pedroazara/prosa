@@ -1,0 +1,29 @@
+{
+  "pergunta_original": "Qual a importância do Observatório Palomar (EUA) na descoberta de galáxias anãs?",
+  "pergunta_final": "Qual foi a importância do Observatório Palomar (EUA) na descoberta de quasares?",
+  "veredito": "reescrever",
+  "justificativa": "O artigo descreve o Observatório Palomar, seus telescópios e descobertas como quasares, mas não menciona a descoberta de galáxias anãs. Portanto, a pergunta original não pode ser respondida com o conteúdo disponível e precisa ser reformulada para um tema abordado no texto.",
+  "area": "Astronomia",
+  "origem": "mundo",
+  "artigo": "Observatório Palomar",
+  "link": "https://pt.wikipedia.org/wiki/Observatório_Palomar",
+  "pontos_principais": [
+    {
+      "ideia": "Astrônomos usando o Telescópio Hale descobriram objetos distantes chamados quasares, contribuindo significativamente para a astronomia de alta energia.",
+      "trecho_do_artigo": "Astrônomos usando o Telescópio Hale descobriram objetos distantes chamados quasares (um subconjunto do que viria a ser conhecido como Núcleos Galácticos Ativos) a distâncias cosmológicas.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O Telescópio Hale, de 200 polegadas, foi o maior do mundo entre 1949 e 1975, oferecendo penetração de luz e resolução fotográfica que possibilitaram tais descobertas.",
+      "trecho_do_artigo": "O telescópio de 200 polegadas foi o maior telescópio do mundo de 1949 até 1975, quando o telescópio russo BTA-6 viu a primeira luz.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A visão de George Ellery Hale enfatizava que telescópios maiores impulsionam o avanço da ciência ao proporcionar maior penetração espacial de luz e resolução.",
+      "trecho_do_artigo": "Nenhum método de avanço da ciência é tão produtivo quanto o desenvolvimento de novos e mais poderosos instrumentos e métodos de pesquisa. Um telescópio maior não apenas proporcionaria o ganho necessário em penetração espacial de luz e poder de resolução fotográfica...",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-02T10:29:11"
+}

@@ -1,0 +1,39 @@
+{
+  "pergunta_original": "Como o método de cálculo de Madhava de Sangamagrama antecedeu o cálculo infinitesimal europeu?",
+  "pergunta_final": "Como o método de cálculo de Madhava de Sangamagrama antecedeu o cálculo infinitesimal europeu?",
+  "veredito": "responde",
+  "justificativa": "O artigo trata de Madhava, descreve suas séries infinitas, entendimento de limites, noções primitivas de integração e ainda menciona possível transmissão ao Europa, cobrindo exatamente o que a pergunta indaga sobre como seu método antecedeu o cálculo infinitesimal europeu.",
+  "area": "História",
+  "subarea": "história da ciência",
+  "origem": "mundo",
+  "artigo": "Madhava de Sangamagrama",
+  "link": "https://pt.wikipedia.org/wiki/Madhava_de_Sangamagrama",
+  "pontos_principais": [
+    {
+      "ideia": "Madhava foi o primeiro a desenvolver aproximações por séries infinitas para funções trigonométricas, estabelecendo um passo fundamental rumo ao cálculo muito antes da Europa.",
+      "trecho_do_artigo": "Foi o primeiro a desenvolver aproximações por séries infinitas para várias funções trigonométricas, o que foi chamado de \"o passo para a frente decisivo dos procedimentos finitos da matemática antiga ao tratamento da sua passagem, por meio do conceito de limite, ao infinito\".",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Ele já incluía estimativas de termo de erro, demonstrando compreensão da noção de limite nas séries, elemento essencial do cálculo infinitesimal.",
+      "trecho_do_artigo": "A obra de Madhava é notável pelas séries, mas o que é realmente notável é a sua estimativa de um termo de erro (ou termo de correção).  Isso implica que a natureza de limite das séries infinitas era bem compreendida por ele.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Madhava e seus seguidores usavam formas primitivas de integração, como afirmar que a integral de x dx é x²/2, precedendo a formalização europeia.",
+      "trecho_do_artigo": "ekadyekothara pada sankalitam samam padavargathinte pakuti, que se traduz como \"a integração de uma variável (pada) é igual à metade dessa variável ao quadrado (varga)\"; ou seja, a integral de x dx é igual a x² / 2.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Há sugestões de que os escritos de Madhava foram transmitidos à Europa por comerciantes e missionários jesuítas, podendo ter influenciado desenvolvimentos posteriores do cálculo europeu.",
+      "trecho_do_artigo": "Alguns estudiosos também sugeriram que a obra de Madhava, por meio dos escritos da escola de Kerala, pode ter sido transmitida para a Europa por comerciantes e missionários jesuítas... pode ter tido uma influência em desenvolvimentos europeus posteriores de análise e cálculo.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T15:13:08",
+  "log": [
+    "✗ Como o Museu de História Natural da Universidad Nacional Mayor de San Marcos contribuiu para a botânica andina? — artigo curto demais (2085 caracteres)",
+    "→ Madhava de Sangamagrama: responde. O artigo trata de Madhava, descreve suas séries infinitas, entendimento de limites, noções primitivas de integração e ainda menciona possível transmissão ao Europa, cobrindo exatamente o que a pergunta indaga sobre como seu método antecedeu o cálculo infinitesimal europeu."
+  ]
+}

@@ -2,7 +2,7 @@
 // Serve para mexer no visual. Use ?demo na URL, ou ?demo=pesquisa, ?demo=explicacao, ?demo=relatorio
 // para abrir direto numa tela.
 
-import type { Config, Dev, Resultado, Sessao } from "./api";
+import type { Avaliacao, Config, Dev, Resultado, Sessao, Sorteio, TemaSalvo } from "./api";
 
 const parametro = new URLSearchParams(location.search).get("demo");
 export const emDemo = parametro !== null;
@@ -26,6 +26,15 @@ export const sessaoDemo: Sessao = {
   area: "Química",
   origem: "mundo",
 };
+
+export const temasDemo: TemaSalvo[] = [
+  { id: "ferroceno", pergunta: sessaoDemo.pergunta, area: "Química", subarea: "química inorgânica", origem: "mundo",
+    artigo: "Ferroceno", data: "2026-10-04T14:55:29" },
+  { id: "carste", pergunta: "Como se formam as paisagens cársticas?", area: "Geologia", subarea: "geomorfologia",
+    origem: "mundo", artigo: "Carste", data: "2026-10-03T21:10:02" },
+  { id: "theatro-da-paz", pergunta: "Por que o Theatro da Paz é um símbolo do ciclo da borracha em Belém?",
+    area: "Arquitetura", subarea: null, origem: "brasil", artigo: "Theatro da Paz", data: "2026-10-03T20:41:17" },
+];
 
 const TEXTO =
   "Então, o ferroceno é um composto de ferro com dois anéis de ciclopentadienil, e éé, ele tem uma estrutura " +
@@ -83,14 +92,21 @@ export const devDemo: Dev = {
   },
 };
 
-export async function sortearDemo(aoAndar: (m: string) => void): Promise<Sessao> {
+export async function sortearDemo(aoAndar: (m: string) => void, aoSortear: (s: Sorteio) => void): Promise<Sessao> {
+  aoSortear({
+    area: "Química",
+    subarea: "química inorgânica",
+    areas: configDemo.areas,
+    subareas: ["química orgânica", "química inorgânica", "físico-química", "eletroquímica", "bioquímica",
+      "química analítica", "polímeros", "catálise", "química de materiais", "processos industriais"],
+  });
   for (const m of [
-    "Área: Química (química inorgânica). Pedindo candidatos ao LLM…",
+    "Pedindo candidatos ao LLM…",
     "20 temas propostos. Procurando um com bom artigo…",
     "Lendo o artigo “Ferroceno”…",
   ]) {
     aoAndar(m);
-    await esperar(1100);
+    await esperar(3500); // tempo para a roleta terminar antes de trocar de tela
   }
   return sessaoDemo;
 }
@@ -98,4 +114,48 @@ export async function sortearDemo(aoAndar: (m: string) => void): Promise<Sessao>
 export async function analisarDemo(): Promise<Resultado> {
   await esperar(1800);
   return resultadoDemo;
+}
+
+export async function avaliacaoDemo(): Promise<Avaliacao> {
+  await esperar(1500);
+  return {
+    sem_fala: false,
+    pontos: [
+      {
+        ideia: resultadoDemo.pontos[0],
+        evidencia: "ele tem uma estrutura tipo sanduíche, né, com o ferro no meio. Isso foi uma surpresa",
+        evidencia_verificada: true,
+        justificativa: "Você descreveu o sanduíche e disse que foi uma surpresa, que é o centro do ponto.",
+        veredito: "coberto",
+      },
+      {
+        ideia: resultadoDemo.pontos[1],
+        evidencia: "ele era muito estável, o que, hum, mostrou que esse tipo de ligação funcionava",
+        evidencia_verificada: true,
+        justificativa: "Você citou a estabilidade, mas não disse por que ela importava para a química da época.",
+        veredito: "parcial",
+      },
+      {
+        ideia: resultadoDemo.pontos[2],
+        evidencia: "a descoberta abriu todo um campo novo, a química organometálica",
+        evidencia_verificada: false,
+        justificativa: "Você ligou a descoberta ao nascimento da química organometálica.",
+        veredito: "coberto",
+      },
+    ],
+    outros_pontos_corretos: [
+      { trecho_da_fala: "depois veio o Nobel pra quem explicou a estrutura", ideia: "A estrutura rendeu um Nobel.", trecho_verificado: true },
+    ],
+    afirmacoes_erradas: [
+      {
+        trecho_da_fala: "o ferroceno é um composto de ferro com dois anéis de ciclopentadienil",
+        trecho_da_referencia: "dois anéis ciclopentadienil ligados em lados opostos a um átomo central de ferro",
+        correcao: "Exemplo de demonstração: aqui apareceria a correção, com o trecho da referência que a sustenta.",
+        fala_verificada: true,
+        referencia_verificada: true,
+      },
+    ],
+    organizacao: "Você começou pela estrutura e terminou na consequência, o que dá uma linha clara de causa e efeito.",
+    proximo_passo: "Abra já dizendo por que o ferroceno foi revolucionário, e só depois descreva a estrutura.",
+  };
 }

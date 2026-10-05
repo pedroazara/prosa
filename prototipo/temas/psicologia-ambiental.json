@@ -1,0 +1,39 @@
+{
+  "pergunta_original": "Qual a importância da psicologia ambiental na promoção de comportamentos sustentáveis nas cidades europeias?",
+  "pergunta_final": "Qual a importância da psicologia ambiental na promoção de comportamentos sustentáveis?",
+  "veredito": "reescrever",
+  "justificativa": "O artigo trata da psicologia ambiental de forma geral, mas não aborda especificamente a sua importância na promoção de comportamentos sustentáveis em cidades europeias. Assim, a pergunta precisa ser reescrita para focar no tema central coberto pelo artigo.",
+  "area": "Psicologia",
+  "origem": "mundo",
+  "artigo": "Psicologia ambiental",
+  "link": "https://pt.wikipedia.org/wiki/Psicologia_ambiental",
+  "pontos_principais": [
+    {
+      "ideia": "A psicologia ambiental investiga percepções, atitudes e representações ambientais, que são fundamentais para entender e influenciar comportamentos sustentáveis.",
+      "trecho_do_artigo": "A psicologia ambiental estuda o homem em seu contexto físico e social. Busca as suas inter-relações ... atribuindo importância às percepções, atitudes, avaliações ou representações ambientais, ao mesmo tempo considerando os comportamentos associados a elas.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Ela analisa como as condições físicas e sociais do ambiente afetam o comportamento individual, permitindo projetar intervenções que favoreçam práticas sustentáveis.",
+      "trecho_do_artigo": "A Psicologia Ambiental se interessa pelos efeitos das condições do ambiente sobre os comportamentos individuais tanto quanto como o indivíduo percebe e atua em seu entorno.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Seu enfoque prático‑ação busca mudanças reais, integrando teoria e prática para promover comportamentos ecológicos na vida cotidiana.",
+      "trecho_do_artigo": "A área possui um foco prático em problemas, assim as pesquisas na área tendem a buscar uma mudança real no mundo, misturando o teórico com o prático já no seu processo de construção do conhecimento.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A interdisciplinaridade da psicologia ambiental permite sua aplicação em diversos contextos (escolas, hospitais, trabalho), ampliando o alcance de iniciativas sustentáveis.",
+      "trecho_do_artigo": "É possível observar o conhecimento da área aplicado em ambientes como escolas, hospitais e ambientes de trabalho.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Ao destacar a percepção do papel do indivíduo no ambiente, a disciplina incentiva a adoção de atitudes sustentáveis pelos próprios cidadãos.",
+      "trecho_do_artigo": "o conhecimento da psicologia ambiental surge para colaborar na compreensão dos comportamentos referentes a conversação ambiental.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-03T23:09:20"
+}

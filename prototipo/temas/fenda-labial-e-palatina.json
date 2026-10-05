@@ -1,0 +1,37 @@
+{
+  "pergunta_original": "Como funciona a correção cirúrgica da fissura labiopalatina usando a técnica de Veau‑Wilhelm?",
+  "pergunta_final": "Como funciona o tratamento cirúrgico das fissuras labiopalatinas?",
+  "veredito": "reescrever",
+  "justificativa": "O artigo aborda fissuras labiopalatinas e menciona tratamento cirúrgico, porém não descreve a técnica específica de Veau‑Wilhelm solicitada na pergunta original. Como o texto cobre o tema geral da cirurgia corretiva das fissuras, a pergunta foi reformulada para focar no funcionamento do tratamento cirúrgico em geral, que pode ser respondido pelo conteúdo do artigo.",
+  "area": "Medicina",
+  "origem": "mundo",
+  "artigo": "Fenda labial e palatina",
+  "link": "https://pt.wikipedia.org/wiki/Fenda_labial_e_palatina",
+  "pontos_principais": [
+    {
+      "ideia": "A cirurgia das fissuras labiais costuma ser feita nos primeiros meses de vida, enquanto a das fissuras palatinas é realizada antes dos 18 meses.",
+      "trecho_do_artigo": "No caso das fendas labiais, a cirurgia é geralmente realizada nos primeiros meses de vida e, no caso das fendas palatinas, antes dos dezoito meses.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O tratamento cirúrgico é prolongado, iniciando no nascimento e continuando até a fase adulta, com múltiplas intervenções corretivas e estéticas.",
+      "trecho_do_artigo": "O tratamento é longo, tendo início desde o nascimento até a fase adulta, passando por várias cirurgias corretivas e estéticas.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O sucesso da correção depende da atuação de uma equipe multidisciplinar que inclui médicos, enfermeiros, fonoaudiólogos, entre outros profissionais.",
+      "trecho_do_artigo": "Uma equipe multidisciplinar deve estar envolvida nessa reabilitação, como médicos, enfermeiros, fonoaudiólogos, nutricionistas, odontólogos, psicólogos, farmacêuticos e assistente social.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Com o tratamento adequado, o prognóstico para pacientes com fissura labiopalatina costuma ser favorável.",
+      "trecho_do_artigo": "Com tratamento adequado, o prognóstico é geralmente bom.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-03T23:42:06",
+  "log": [
+    "→ Fenda labial e palatina: reescrever. O artigo aborda fissuras labiopalatinas e menciona tratamento cirúrgico, porém não descreve a técnica específica de Veau‑Wilhelm solicitada na pergunta original. Como o texto cobre o tema geral da cirurgia corretiva das fissuras, a pergunta foi reformulada para focar no funcionamento do tratamento cirúrgico em geral, que pode ser respondido pelo conteúdo do artigo."
+  ]
+}

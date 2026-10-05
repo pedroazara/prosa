@@ -1,0 +1,34 @@
+{
+  "pergunta_original": "Por que o ferroceno revolucionou a química de coordenação nos anos 1950?",
+  "pergunta_final": "Por que o ferroceno revolucionou a química de coordenação nos anos 1950?",
+  "veredito": "responde",
+  "justificativa": "O artigo aborda a descoberta do ferroceno, sua estrutura sanduíche, a notável estabilidade e aromaticidade, bem como o impacto subsequente na química organometálica e o reconhecimento Nobel, respondendo ao porquê ele revolucionou a química de coordenação nos anos 1950.",
+  "area": "Química",
+  "origem": "mundo",
+  "artigo": "Ferroceno",
+  "link": "https://pt.wikipedia.org/wiki/Ferroceno",
+  "pontos_principais": [
+    {
+      "ideia": "A estrutura única em forma de sanduíche do ferroceno criou uma nova classe de compostos, os metalocenos, mudando a visão da química de coordenação.",
+      "trecho_do_artigo": "Sua estrutura diferenciada \"sanduíche\" levou a uma explosão de interesse em compostos de metais do bloco d com hidrocarbonetos, e revigorou o desenvolvimento da florescente química organometálica.",
+      "trecho_verificado": false
+    },
+    {
+      "ideia": "A notável estabilidade e o caráter aromático do ferroceno desafiaram expectativas, mostrando que metais de transição podiam formar complexos estáveis com ligantes π‑eletrônicos.",
+      "trecho_do_artigo": "obteve um pó alaranjado-claro de \"notável estabilidade.\" Esta estabilidade estava de acordo com o caráter aromático dos ciclopentadienis negativamente carregados.",
+      "trecho_verificado": false
+    },
+    {
+      "ideia": "A descoberta do ferroceno impulsionou um rápido crescimento da química organometálica, gerando grande interesse e pesquisa em novos complexos semelhantes.",
+      "trecho_do_artigo": "O crescimento rápido da química organometálica é muitas vezes atribuído ao excitamento vindo da descoberta do ferroceno.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "O reconhecimento científico, culminando no Prêmio Nobel de 1973 para Fischer e Wilkinson, reforçou a importância do ferroceno e consolidou sua revolução na área.",
+      "trecho_do_artigo": "Em 1973 Fischer ... e Wilkinson ... dividiram um Prêmio Nobel por seu trabalho sobre metalocenos e outros aspectos da química organometálica.",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-03T23:12:17"
+}

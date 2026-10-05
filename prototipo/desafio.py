@@ -6,6 +6,8 @@ Sorteio do tema e montagem da referência oculta (o mesmo fluxo do passo4_refere
 
 import json
 import sys
+
+import openai
 from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
@@ -16,11 +18,12 @@ sys.path.insert(0, str(EXPERIMENTO_2))
 import llm  # noqa: E402
 import referencia  # noqa: E402
 import sorteio  # noqa: E402
-from areas import AREAS  # noqa: E402
+from areas import AREAS, SUBAREAS  # noqa: E402
 
 ORIGENS = sorted(sorteio.ORIGENS)
 HISTORICO = EXPERIMENTO_2 / "historico_temas.json"  # o mesmo do passo 4, para não repetir temas
 MAX_LEITURAS = 4  # cada leitura de artigo gasta alguns milhares de tokens
+LIMITE_REDUZIDO = 7000  # caracteres; se o artigo inteiro estourar o limite por chamada (erro 413)
 
 cliente = llm.criar_cliente().with_options(max_retries=6)
 modelo = llm.modelo()
@@ -33,11 +36,17 @@ def _carregar_historico() -> list[dict]:
 
 
 def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
-    """Devolve ("status", mensagem) durante o processo e, no fim, ("pronto", desafio) ou ("erro", mensagem)."""
+    """Devolve ("status", mensagem) durante o processo e, no fim, ("pronto", desafio) ou ("erro", mensagem).
+
+    Logo no começo devolve também ("sorteio", {...}), com as opções, para a tela fazer a roleta.
+    """
     historico = _carregar_historico()
+    area_sorteada = area is None
     area = area or sorteio.sortear_area()
     subarea = sorteio.sortear_subarea(area)
-    yield "status", f"Área: {area} ({subarea}). Pedindo candidatos ao LLM…"
+    yield "sorteio", {"area": area, "subarea": subarea, "areas": AREAS if area_sorteada else [],
+                      "subareas": SUBAREAS[area]}
+    yield "status", "Pedindo candidatos ao LLM…"
 
     recentes = [item["pergunta"] for item in historico[-30:]]
     candidatos = sorteio.propor_candidatos(cliente, modelo, area, origem, recentes, subarea=subarea)
@@ -56,7 +65,16 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
             break
         leituras += 1
         yield "status", f"Lendo o artigo “{art['titulo']}”…"
-        ref = referencia.montar(cliente, modelo, c.pergunta, art)
+        try:
+            ref = referencia.montar(cliente, modelo, c.pergunta, art)
+        except openai.APIStatusError as erro:
+            if erro.status_code != 413:
+                raise
+            yield "status", "Artigo grande demais para o plano grátis. Lendo um trecho menor…"
+            ref = referencia.montar(cliente, modelo, c.pergunta, art, limite=LIMITE_REDUZIDO)
+            texto_limite = LIMITE_REDUZIDO
+        else:
+            texto_limite = referencia.LIMITE_ARTIGO
         log.append(f"→ {art['titulo']}: {ref.veredito}. {ref.justificativa}")
         if ref.veredito != "outro_assunto" and ref.pontos_principais:
             escolha = (c, art, ref)
@@ -68,7 +86,7 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
         return
 
     c, art, ref = escolha
-    texto_enviado = referencia.preparar_texto(art["texto"], c.pergunta)
+    texto_enviado = referencia.preparar_texto(art["texto"], c.pergunta, texto_limite)
     desafio = {
         "pergunta_original": c.pergunta,
         "pergunta_final": ref.pergunta_final,
@@ -84,6 +102,8 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
              "trecho_verificado": referencia.trecho_existe(p.trecho_do_artigo, texto_enviado)}
             for p in ref.pontos_principais
         ],
+        # O texto que o LLM leu: a avaliação confere as correções contra ele (ver avaliacao.py).
+        "texto_referencia": texto_enviado,
         "modelo": modelo,
         "data": datetime.now().isoformat(timespec="seconds"),
         "log": log,

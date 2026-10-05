@@ -1,0 +1,43 @@
+{
+  "pergunta_original": "Qual a importância das Convenções de Genebra de 1949 para o direito internacional humanitário?",
+  "pergunta_final": "Qual a importância das Convenções de Genebra de 1949 para o direito internacional humanitário?",
+  "veredito": "responde",
+  "justificativa": "O artigo descreve detalhadamente o conteúdo e o impacto das Convenções de Genebra de 1949, destacando sua revisão das convenções anteriores, a proteção dos civis, seu papel como base do direito humanitário e as consequências jurídicas de sua violação, atendendo exatamente ao que a pergunta solicita sobre a importância dessas convenções para o direito internacional humanitário.",
+  "area": "Direito",
+  "subarea": "direito internacional",
+  "origem": "mundo",
+  "artigo": "Convenções de Genebra",
+  "link": "https://pt.wikipedia.org/wiki/Convenções_de_Genebra",
+  "pontos_principais": [
+    {
+      "ideia": "A quarta Convenção de 1949 revisou as três anteriores e acrescentou proteção específica aos civis em tempo de guerra, ampliando a abrangência do direito internacional humanitário.",
+      "trecho_do_artigo": "A quarta Convenção foi escrita em 1949. Ela revisou as três Convenções anteriores e acrescentou uma quarta, relativa à proteção dos civis em período de guerra.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "As Convenções de Genebra constituem a base dos direitos humanitários internacionais, servindo como fundamento legal para a proteção de combatentes e não combatentes.",
+      "trecho_do_artigo": "Tais tratados são inéditos, consistindo na base dos direitos humanitários internacionais.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Elas proíbem explicitamente o sequestro de civis, retaliações contra eles e punições coletivas, reforçando princípios essenciais de proteção civil.",
+      "trecho_do_artigo": "eles não podem ser sequestrados... toda e qualquer medida de retorsão... as punições coletivas são estritamente proibidas.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "Estabelecem normas de tratamento humano de prisioneiros de guerra e garantem proteção especial a hospitais civis marcados, contribuindo para condutas mais humanitárias em conflitos.",
+      "trecho_do_artigo": "Prisioneiros de guerra devem ser tratados com humanidade e protegidos da violência... Proteção especial contra ataques será garantida aos hospitais civis marcados com a cruz vermelha.",
+      "trecho_verificado": true
+    },
+    {
+      "ideia": "A violação das convenções pode levar a processos perante a Corte Internacional de Justiça ou o Tribunal Penal Internacional, assegurando responsabilização no âmbito do direito internacional humanitário.",
+      "trecho_do_artigo": "Todo ato de violação ... pode conduzir a um processo diante da Corte Internacional de Justiça (CIJ) ... ou diante da Corte Penal Internacional (CPI).",
+      "trecho_verificado": true
+    }
+  ],
+  "modelo": "openai/gpt-oss-120b",
+  "data": "2026-10-04T15:16:17",
+  "log": [
+    "→ Convenções de Genebra: responde. O artigo descreve detalhadamente o conteúdo e o impacto das Convenções de Genebra de 1949, destacando sua revisão das convenções anteriores, a proteção dos civis, seu papel como base do direito humanitário e as consequências jurídicas de sua violação, atendendo exatamente ao que a pergunta solicita sobre a importância dessas convenções para o direito internacional humanitário."
+  ]
+}
