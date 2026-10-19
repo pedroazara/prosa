@@ -1,0 +1,17 @@
+# Só para o site publicado no Vercel: diz onde está o servidor e o que instalar.
+# No PC, as dependências vêm do requirements-local.txt (ver README). Mantenha a lista igual à do requirements.txt.
+[project]
+name = "prosa"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "openai==3.23.0",
+    "python-dotenv==1.2.4",
+    "httpx==0.28.1",
+    "fastapi==0.142.2",
+    "uvicorn==0.54.0",
+    "python-multipart==0.0.32",
+]
+
+[tool.vercel]
+entrypoint = "prototipo.servidor:app"

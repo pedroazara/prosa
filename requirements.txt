@@ -1,4 +1,4 @@
-# Servidor do protótipo (prototipo/servidor.py). É o que o Vercel instala: tudo leve.
+# Servidor do protótipo (prototipo/servidor.py), sem o Whisper local. O Vercel instala a mesma lista, pelo pyproject.toml.
 openai==3.23.0
 python-dotenv==1.2.4
 httpx==0.28.1

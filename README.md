@@ -195,8 +195,8 @@ prosa/
       public/                   ← logotipo e favicon
   PROSA logo brief/             ← identidade visual (logotipo, cores)
   treinar.sh                    ← um comando para treinar: prepara tudo e abre o site
-  app.py, vercel.json           ← entrada e configuração do site publicado no Vercel
-  requirements.txt              ← dependências do servidor (o que o Vercel instala)
+  pyproject.toml, vercel.json   ← entrada e configuração do site publicado no Vercel
+  requirements.txt              ← dependências do servidor (as mesmas do pyproject.toml, que o Vercel usa)
   requirements-local.txt        ← as do servidor mais o Whisper local (o que o treinar.sh instala)
   .env.example                  ← modelo de configuração (a chave fica no .env, fora do git)
 ```
@@ -466,7 +466,7 @@ Para publicar:
    python prototipo/enviar_temas.py
    ```
    Com essas variáveis no `.env`, o protótipo no PC também passa a usar o Supabase. Para voltar aos arquivos, comente as duas linhas.
-3. No [Vercel](https://vercel.com), importe o repositório do GitHub. O `vercel.json` já diz como compilar o site e onde está o servidor (`app.py`).
+3. No [Vercel](https://vercel.com), importe o repositório do GitHub. Deixe a **Root Directory** vazia (a raiz do repositório) e o **Framework Preset** em FastAPI. O `vercel.json` diz como compilar o site, e o `pyproject.toml` diz onde está o servidor.
 4. Em **Settings → Environment Variables**, ponha `SUPABASE_URL` e `SUPABASE_SECRET_KEY`. **Não** ponha `LLM_API_KEY`: sem ela, o site pede a chave de cada pessoa.
 5. Faça o deploy. A avaliação pela IA continua indisponível, como no PC, até o experimento 3 existir.
 

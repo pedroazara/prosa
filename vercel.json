@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd prototipo/web && npm ci && npm run build",
   "functions": {
-    "app.py": {
+    "prototipo/servidor.py": {
       "maxDuration": 300,
       "excludeFiles": "{.venv/**,video/**,docs/**,PROSA logo brief/**,experimentos/01-whisper/**,experimentos/02-tema-e-referencia/referencias/**,prototipo/web/node_modules/**,prototipo/web/src/**,prototipo/sessoes/**,prototipo/temas/**}"
     }

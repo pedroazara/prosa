@@ -12,7 +12,7 @@ Uso (na raiz do projeto):
 Para desenvolver, o servidor reinicia sozinho quando um .py do protótipo ou do experimento 2 muda.
 As sessões em andamento ficam na memória, então somem nesse reinício. No modo de treino ele não reinicia.
 
-No site publicado (Vercel, ver app.py na raiz), cada pessoa usa a própria chave da Groq: o navegador
+No site publicado (Vercel, ver pyproject.toml na raiz), cada pessoa usa a própria chave da Groq: o navegador
 a manda no cabeçalho X-Groq-Key a cada pedido, e ela não é guardada aqui. Sessões e temas vão para
 o Supabase (nuvem.py), porque lá o disco é só de leitura e cada pedido pode cair numa máquina diferente.
 """
@@ -35,7 +35,7 @@ from fastapi import Depends, FastAPI, Form, Header, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-# No Vercel o servidor é importado de fora (app.py, na raiz): os módulos ao lado precisam estar no caminho.
+# No Vercel o servidor é importado como prototipo.servidor: os módulos ao lado precisam estar no caminho.
 sys.path.insert(0, str(Path(__file__).parent))
 
 import biblioteca  # noqa: E402
