@@ -1,7 +1,6 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { avaliar, mmss, type Avaliacao, type Fala, type Resultado, type Sessao, type Veredito } from "../api";
+import { useState, type ReactNode } from "react";
+import { mmss, type Fala, type Resultado, type Sessao } from "../api";
 import Icone from "./Icone";
-import { sons } from "../sons";
 import Player from "./Player";
 
 type Props = {
@@ -12,25 +11,33 @@ type Props = {
   maxPalavras?: number;
   /** O botão do fim: "Novo tema", ou na maratona "Próximo tema (2 de 3)" e "Ver resumo". */
   seguir: { rotulo: string; acao: () => void };
-  /** Avisa quantos pontos a pessoa marcou, para o resumo da maratona. */
-  aoMarcar?: (marcados: number) => void;
 };
 
 /** Quebra a transcrição em pedaços, envolvendo os vícios em <mark>. */
-function destacar(fala: Fala): ReactNode[] {
+function destacar(fala: Fala, tempo: number): ReactNode[] {
+  const tokens = fala.tokens ?? [];
+  // A palavra falando agora: a última que já começou, enquanto ainda soa (ou logo depois dela).
+  let ativa = -1;
+  tokens.forEach((t, i) => {
+    if (t.t0 <= tempo) ativa = i;
+  });
+  if (ativa >= 0 && tempo > tokens[ativa].t1 + 0.4) ativa = -1;
+
+  // Cortes nas bordas das palavras e dos vícios, para cada pedaço ter um só estilo.
+  const cortes = new Set([0, fala.texto.length]);
+  for (const t of tokens) cortes.add(t.inicio).add(t.fim);
+  for (const m of fala.marcacoes) cortes.add(m.inicio).add(m.fim);
+  const pos = [...cortes].filter((c) => c >= 0 && c <= fala.texto.length).sort((a, b) => a - b);
+
   const pedacos: ReactNode[] = [];
-  let pos = 0;
-  for (const m of fala.marcacoes) {
-    if (m.inicio < pos) continue; // padrões sobrepostos: fica o primeiro
-    pedacos.push(fala.texto.slice(pos, m.inicio));
-    pedacos.push(
-      <mark key={m.inicio} className={`vicio vicio-${m.tipo}`}>
-        {fala.texto.slice(m.inicio, m.fim)}
-      </mark>,
-    );
-    pos = m.fim;
+  for (let k = 0; k < pos.length - 1; k++) {
+    const [a, b] = [pos[k], pos[k + 1]];
+    let no: ReactNode = fala.texto.slice(a, b);
+    if (ativa >= 0 && a >= tokens[ativa].inicio && b <= tokens[ativa].fim) no = <span className="falando">{no}</span>;
+    const m = fala.marcacoes.find((m) => a >= m.inicio && b <= m.fim);
+    if (m) no = <mark className={`vicio vicio-${m.tipo}`}>{no}</mark>;
+    pedacos.push(<span key={a}>{no}</span>);
   }
-  pedacos.push(fala.texto.slice(pos));
   return pedacos;
 }
 
@@ -48,25 +55,9 @@ function Etiquetas({ contagem, vazio }: { contagem: Record<string, number>; vazi
   );
 }
 
-const NOME_VEREDITO: Record<Veredito, string> = { coberto: "Coberto", parcial: "Parcial", nao_coberto: "Não coberto" };
-
-/** Citação da fala ou da referência, com o aviso quando o código não a encontrou no texto. */
-function Citacao({ texto, conferida, rotulo }: { texto: string; conferida: boolean | null; rotulo?: string }) {
-  return (
-    <blockquote className="citacao">
-      {rotulo && <span className="rotulo">{rotulo}</span>}“{texto}”
-      {conferida === false && (
-        <span className="citacao-alerta">
-          <Icone nome="warning" tamanho={14} /> trecho não encontrado no texto: confira antes de confiar
-        </span>
-      )}
-    </blockquote>
-  );
-}
-
-export default function Relatorio({ sessao, resultado, audio, limite, maxPalavras, seguir, aoMarcar }: Props) {
-  const { fala, pontos } = resultado;
-  const [cobertos, setCobertos] = useState<boolean[]>(() => pontos.map(() => false));
+export default function Relatorio({ sessao, resultado, audio, limite, maxPalavras, seguir }: Props) {
+  const { fala } = resultado;
+  const [tempo, setTempo] = useState(0);
 
   const minutos = fala.duracao / 60 || 1;
   const soma = (c: Record<string, number>) => Object.values(c).reduce((a, b) => a + b, 0);
@@ -74,197 +65,34 @@ export default function Relatorio({ sessao, resultado, audio, limite, maxPalavra
   const muletas = soma(fala.muletas);
   const passou = limite !== null && fala.duracao > limite;
   const palavrasDemais = maxPalavras !== undefined && fala.palavras > maxPalavras;
-  const nCobertos = cobertos.filter(Boolean).length;
-  useEffect(() => aoMarcar?.(nCobertos), [nCobertos]);
-  const [avaliacao, setAvaliacao] = useState<Avaliacao | null>(null);
-  const [avaliando, setAvaliando] = useState(false);
-  const [erroAvaliacao, setErroAvaliacao] = useState<string | null>(null);
-
-  async function pedirAvaliacao() {
-    setAvaliando(true);
-    setErroAvaliacao(null);
-    try {
-      setAvaliacao(await avaliar(sessao.id, cobertos));
-      sons.pronto();
-    } catch (e) {
-      setErroAvaliacao((e as Error).message);
-      sons.erro();
-    } finally {
-      setAvaliando(false);
-    }
-  }
 
   return (
     <section className="relatorio">
       <header className="relatorio-cabeca">
         <div className="contexto">
-          <span className="ponto-pulsante" />
-          <span>Sessão concluída</span>
-          <span className="sep">•</span>
           <span className={passou ? "texto-alerta" : ""}>
             {mmss(fala.duracao)} de áudio gravado{passou && ` (limite: ${mmss(limite!)})`}
           </span>
           <span className="sep">•</span>
           <span className="etiqueta">{sessao.area}</span>
+          {sessao.subarea && <span className="etiqueta">{sessao.subarea}</span>}
         </div>
         <h1 className="titulo-relatorio">{sessao.pergunta}</h1>
-        <Player audio={audio} duracao={fala.duracao} />
+        <Player audio={audio} duracao={fala.duracao} aoTempo={setTempo} />
       </header>
 
       <div className="relatorio-grade">
         <div className="coluna">
           <div className="coluna-cabeca">
             <div>
-              <h2>Conceitos-chave</h2>
-              <p className="nota">
-                {avaliacao
-                  ? "O que você marcou, ao lado do que a IA encontrou na sua fala."
-                  : "Os pontos que a referência esperava. Marque os que você acha que cobriu antes de ver a avaliação da IA."}
-              </p>
+              <h2>Transcrição</h2>
             </div>
-            <span className="contador">
-              {avaliacao
-                ? `IA: ${avaliacao.pontos.filter((p) => p.veredito === "coberto").length} de ${pontos.length} cobertos`
-                : `${nCobertos} de ${pontos.length} marcados`}
-            </span>
           </div>
-
-          <ol className="conceitos">
-            {pontos.map((p, i) => {
-              const ia = avaliacao?.pontos[i];
-              if (!ia)
-                return (
-                  <li key={i}>
-                    <button
-                      className={`cartao conceito ${cobertos[i] ? "coberto" : ""}`}
-                      onClick={() => setCobertos((c) => c.map((v, j) => (j === i ? !v : v)))}
-                      aria-pressed={cobertos[i]}
-                      disabled={avaliando}
-                    >
-                      <span className="conceito-marca">
-                        <Icone nome={cobertos[i] ? "check" : "radio_button_unchecked"} cheio={cobertos[i]} tamanho={18} />
-                      </span>
-                      <span className="conceito-texto">{p}</span>
-                      <span className="conceito-estado">{cobertos[i] ? "Coberto" : "Marcar"}</span>
-                    </button>
-                  </li>
-                );
-              const concorda = ia.veredito === "parcial" ? null : (ia.veredito === "coberto") === cobertos[i];
-              return (
-                <li key={i}>
-                  <div className={`cartao conceito avaliado veredito-${ia.veredito}`}>
-                    <span className="conceito-marca">
-                      <Icone
-                        nome={ia.veredito === "coberto" ? "check" : ia.veredito === "parcial" ? "contrast" : "close"}
-                        cheio
-                        tamanho={18}
-                      />
-                    </span>
-                    <div className="conceito-corpo">
-                      <span className="conceito-texto">{p}</span>
-                      <div className="conceito-selos">
-                        <span className={`selo selo-ia-${ia.veredito}`}>IA: {NOME_VEREDITO[ia.veredito]}</span>
-                        <span className="selo selo-voce">Você: {cobertos[i] ? "marcou" : "não marcou"}</span>
-                        {concorda !== null && (
-                          <span className={`concorda ${concorda ? "sim" : "nao"}`}>
-                            <Icone nome={concorda ? "handshake" : "compare_arrows"} tamanho={14} />
-                            {concorda ? "concordam" : "divergem"}
-                          </span>
-                        )}
-                      </div>
-                      <p className="conceito-justificativa">{ia.justificativa}</p>
-                      {ia.evidencia && <Citacao texto={ia.evidencia} conferida={ia.evidencia_verificada} />}
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-
-          {!avaliacao ? (
-            <div className="avaliar">
-              <button className="botao primario" onClick={pedirAvaliacao} disabled={avaliando}>
-                {avaliando ? <span className="girando claro" /> : <Icone nome="auto_awesome" />}
-                {avaliando ? "Avaliando sua explicação…" : "Ver avaliação da IA"}
-              </button>
-              <span className="nota">
-                {avaliando
-                  ? "A IA compara sua fala com a rubrica e com o artigo. Leva uns 20 segundos."
-                  : "Depois de ver, suas marcações ficam travadas: elas servem para comparar com a IA."}
-              </span>
-              {erroAvaliacao && (
-                <span className="erro-inline">
-                  <Icone nome="error" tamanho={18} /> {erroAvaliacao}
-                </span>
-              )}
-            </div>
-          ) : (
-            <>
-              {avaliacao.sem_fala && (
-                <div className="aviso-suave">
-                  <Icone nome="mic_off" tamanho={18} />
-                  <p>A gravação tem pouca fala reconhecida, então não deu para avaliar o conteúdo.</p>
-                </div>
-              )}
-
-              {avaliacao.afirmacoes_erradas.length > 0 && (
-                <div className="cartao bloco-avaliacao bloco-erros">
-                  <h3 className="cartao-titulo">
-                    <Icone nome="error" tamanho={20} /> Afirmações a revisar
-                  </h3>
-                  {avaliacao.afirmacoes_erradas.map((e, i) => (
-                    <div key={i} className="item-avaliacao">
-                      <Citacao texto={e.trecho_da_fala} conferida={e.fala_verificada} rotulo="Você disse" />
-                      <p>{e.correcao}</p>
-                      <Citacao texto={e.trecho_da_referencia} conferida={e.referencia_verificada} rotulo={`Na referência (${resultado.artigo})`} />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {avaliacao.outros_pontos_corretos.length > 0 && (
-                <div className="cartao bloco-avaliacao">
-                  <h3 className="cartao-titulo">
-                    <Icone nome="add_circle" tamanho={20} /> Outros pontos que você trouxe
-                  </h3>
-                  <p className="nota">Corretos e fora da rubrica: não contam contra você.</p>
-                  {avaliacao.outros_pontos_corretos.map((o, i) => (
-                    <div key={i} className="item-avaliacao">
-                      <p>{o.ideia}</p>
-                      <Citacao texto={o.trecho_da_fala} conferida={o.trecho_verificado} />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {(avaliacao.organizacao || avaliacao.proximo_passo) && (
-                <div className="cartao bloco-avaliacao bloco-proximo">
-                  {avaliacao.organizacao && (
-                    <>
-                      <h3 className="cartao-titulo">
-                        <Icone nome="account_tree" tamanho={20} /> Organização
-                      </h3>
-                      <p>{avaliacao.organizacao}</p>
-                    </>
-                  )}
-                  {avaliacao.proximo_passo && (
-                    <>
-                      <h3 className="cartao-titulo">
-                        <Icone nome="flag" tamanho={20} /> Para a próxima
-                      </h3>
-                      <p>{avaliacao.proximo_passo}</p>
-                    </>
-                  )}
-                </div>
-              )}
-            </>
-          )}
 
           <div className="aviso-suave">
             <Icone nome="info" tamanho={18} />
             <p>
-              A IA pode errar. Cada citação foi conferida pelo código na sua fala ou no artigo; as que não bateram
-              aparecem marcadas.{" "}
+              A avaliação do conteúdo pela IA ainda não está disponível.{" "}
               <a href={resultado.link} target="_blank" rel="noreferrer">
                 Ver referência: {resultado.artigo}
               </a>
@@ -281,7 +109,7 @@ export default function Relatorio({ sessao, resultado, audio, limite, maxPalavra
                 <span><i className="vicio-muleta" /> muleta</span>
               </div>
             </div>
-            <p className="transcricao">{fala.texto ? destacar(fala) : <em>Nenhuma palavra reconhecida.</em>}</p>
+            <p className="transcricao">{fala.texto ? destacar(fala, tempo) : <em>Nenhuma palavra reconhecida.</em>}</p>
           </div>
         </div>
 
@@ -289,7 +117,6 @@ export default function Relatorio({ sessao, resultado, audio, limite, maxPalavra
           <div className="coluna-cabeca">
             <div>
               <h2>Métricas de fala</h2>
-              <p className="nota">Medidas pelo código a partir da transcrição, sem IA.</p>
             </div>
           </div>
 

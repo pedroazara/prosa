@@ -4,7 +4,6 @@ Sorteio do tema e montagem da referência oculta (o mesmo fluxo do passo4_refere
 É um gerador: vai devolvendo mensagens de andamento para a tela, e no fim o desafio.
 """
 
-import json
 import sys
 
 import openai
@@ -21,26 +20,22 @@ import sorteio  # noqa: E402
 from areas import AREAS, SUBAREAS  # noqa: E402
 
 ORIGENS = sorted(sorteio.ORIGENS)
-HISTORICO = EXPERIMENTO_2 / "historico_temas.json"  # o mesmo do passo 4, para não repetir temas
 MAX_LEITURAS = 4  # cada leitura de artigo gasta alguns milhares de tokens
 LIMITE_REDUZIDO = 7000  # caracteres; se o artigo inteiro estourar o limite por chamada (erro 413)
-
-cliente = llm.criar_cliente().with_options(max_retries=6)
-modelo = llm.modelo()
-
-
-def _carregar_historico() -> list[dict]:
-    if HISTORICO.exists():
-        return json.loads(HISTORICO.read_text(encoding="utf-8"))
-    return []
+# Enquanto não há a avaliação do conteúdo, o sorteio dá um tema específico para estudar
+# ("Efeito Stroop"), e não uma pergunta específica e difícil. Para voltar às perguntas: "pergunta".
+ESTILO = "tema"
 
 
-def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
+def gerar(area: str | None, origem: str, chave: str | None, historico: list[dict]) -> Iterator[tuple[str, str | dict]]:
     """Devolve ("status", mensagem) durante o processo e, no fim, ("pronto", desafio) ou ("erro", mensagem).
 
     Logo no começo devolve também ("sorteio", {...}), com as opções, para a tela fazer a roleta.
+    "chave" é a chave da Groq de quem está no site (None: a do .env); "historico", os temas já sorteados.
+    Guardar o tema pronto fica com quem chamou (biblioteca.registrar).
     """
-    historico = _carregar_historico()
+    cliente = llm.criar_cliente(chave).with_options(max_retries=6)
+    modelo = llm.modelo(chave)
     area_sorteada = area is None
     area = area or sorteio.sortear_area()
     subarea = sorteio.sortear_subarea(area)
@@ -49,7 +44,8 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
     yield "status", "Pedindo candidatos ao LLM…"
 
     recentes = [item["pergunta"] for item in historico[-30:]]
-    candidatos = sorteio.propor_candidatos(cliente, modelo, area, origem, recentes, subarea=subarea)
+    candidatos = sorteio.propor_candidatos(cliente, modelo, area, origem, recentes, subarea=subarea,
+                                            estilo=ESTILO)
     yield "status", f"{len(candidatos)} temas propostos. Procurando um com bom artigo…"
 
     artigos_usados = {item["artigo"] for item in historico}
@@ -57,7 +53,7 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
     escolha = None
     leituras = 0
     for c in candidatos:
-        art, motivo = sorteio.buscar_artigo(c, artigos_usados)
+        art, motivo = sorteio.buscar_artigo(c, artigos_usados, estilo=ESTILO)
         if art is None:
             log.append(f"✗ {c.pergunta} — {motivo}")
             continue
@@ -66,12 +62,13 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
         leituras += 1
         yield "status", f"Lendo o artigo “{art['titulo']}”…"
         try:
-            ref = referencia.montar(cliente, modelo, c.pergunta, art)
+            ref = referencia.montar(cliente, modelo, c.pergunta, art, estilo=ESTILO, area=area)
         except openai.APIStatusError as erro:
             if erro.status_code != 413:
                 raise
             yield "status", "Artigo grande demais para o plano grátis. Lendo um trecho menor…"
-            ref = referencia.montar(cliente, modelo, c.pergunta, art, limite=LIMITE_REDUZIDO)
+            ref = referencia.montar(cliente, modelo, c.pergunta, art, limite=LIMITE_REDUZIDO,
+                                       estilo=ESTILO, area=area)
             texto_limite = LIMITE_REDUZIDO
         else:
             texto_limite = referencia.LIMITE_ARTIGO
@@ -89,12 +86,13 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
     texto_enviado = referencia.preparar_texto(art["texto"], c.pergunta, texto_limite)
     desafio = {
         "pergunta_original": c.pergunta,
-        "pergunta_final": ref.pergunta_final,
+        "pergunta_final": ref.pergunta_final or c.pergunta,
         "veredito": ref.veredito,
         "justificativa": ref.justificativa,
         "area": area,
         "subarea": subarea,
         "origem": origem,
+        "estilo": ESTILO,
         "artigo": art["titulo"],
         "link": f"https://pt.wikipedia.org/wiki/{art['titulo'].replace(' ', '_')}",
         "pontos_principais": [
@@ -108,7 +106,4 @@ def gerar(area: str | None, origem: str) -> Iterator[tuple[str, str | dict]]:
         "data": datetime.now().isoformat(timespec="seconds"),
         "log": log,
     }
-    historico.append({"pergunta": desafio["pergunta_final"], "area": area, "subarea": subarea,
-                      "artigo": art["titulo"], "data": desafio["data"]})
-    HISTORICO.write_text(json.dumps(historico, ensure_ascii=False, indent=2), encoding="utf-8")
     yield "pronto", desafio

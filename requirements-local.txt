@@ -1,0 +1,6 @@
+# Para rodar no PC (./treinar.sh): o servidor e mais o Whisper local.
+# No Vercel ele não cabe: lá a transcrição é feita pela Groq (ver prototipo/fala.py).
+-r requirements.txt
+faster-whisper==1.2.1
+# O av 18 removeu um parâmetro (metadata_errors) que o faster-whisper 1.2.1 usa.
+av<18

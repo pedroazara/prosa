@@ -22,7 +22,7 @@ async function picos(audio: Blob): Promise<number[]> {
   }
 }
 
-export default function Player({ audio, duracao }: { audio: Blob | null; duracao: number }) {
+export default function Player({ audio, duracao, aoTempo }: { audio: Blob | null; duracao: number; aoTempo?: (t: number) => void }) {
   const [url, setUrl] = useState<string | null>(null);
   const [onda, setOnda] = useState<number[]>(() => Array(BARRAS).fill(0.15));
   const [tocando, setTocando] = useState(false);
@@ -63,7 +63,10 @@ export default function Player({ audio, duracao }: { audio: Blob | null; duracao
           onPlay={() => setTocando(true)}
           onPause={() => setTocando(false)}
           onEnded={() => setTocando(false)}
-          onTimeUpdate={(e) => setTempo(e.currentTarget.currentTime)}
+          onTimeUpdate={(e) => {
+            setTempo(e.currentTarget.currentTime);
+            aoTempo?.(e.currentTarget.currentTime);
+          }}
         />
       )}
       <div className="player-controle">

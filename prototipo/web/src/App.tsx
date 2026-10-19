@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { ErroApi, buscarConfig, sortear, usarTemaSalvo, analisar, type Config, type Resultado, type Sessao, type Sorteio } from "./api";
+import { ERROS_DE_CHAVE, ErroApi, buscarConfig, lerChave, sortear, usarTemaSalvo, analisar, type Config, type Resultado, type Sessao, type Sorteio } from "./api";
 import Inicio from "./componentes/Inicio";
+import Chave from "./componentes/Chave";
 import Preparando from "./componentes/Preparando";
 import Pesquisa from "./componentes/Pesquisa";
 import Explicacao from "./componentes/Explicacao";
@@ -36,6 +37,12 @@ export default function App() {
   const [resultado, setResultado] = useState<Resultado | null>(emDemo ? resultadoDemo : null);
   const [devAberto, setDevAberto] = useState(false);
   const [mudo, setMudo] = useState(estaMudo);
+  // No site publicado, a chave da Groq de quem usa (ver Chave.tsx). No PC, o servidor usa a do .env.
+  const [temChave, setTemChave] = useState(() => !!lerChave());
+  const [pedindoChave, setPedindoChave] = useState(false);
+  const [avisoChave, setAvisoChave] = useState<string | null>(null);
+  const precisaChave = !!config && !config.chave_no_servidor;
+  const mostrarChave = fase === "inicio" && precisaChave && (pedindoChave || !temChave);
 
   // Modo de treino e, quando ele tem vários temas (maratona), as rodadas já feitas.
   const [modoId, setModoId] = useState(lerModo);
@@ -51,7 +58,6 @@ export default function App() {
   const [rodada, setRodada] = useState(1);
   const [rodadas, setRodadas] = useState<Rodada[]>([]);
   const [usados, setUsados] = useState<string[]>([]);
-  const [marcados, setMarcados] = useState(0);
 
   // Sons das mudanças de etapa e dos erros (os da roleta, do cronômetro e da gravação ficam nos componentes).
   useEffect(() => {
@@ -81,9 +87,14 @@ export default function App() {
       setTempoEsgotado(false);
       setFase("pesquisa");
     } catch (e) {
+      setFase("inicio");
+      if (e instanceof ErroApi && e.codigo && ERROS_DE_CHAVE.includes(e.codigo)) {
+        setAvisoChave(e.message); // a chave sumiu ou foi recusada: pede outra em vez de só mostrar o erro
+        setPedindoChave(true);
+        return;
+      }
       setErro((e as Error).message);
       setErroDaIa(e instanceof ErroApi && !!e.codigo && !["chave", "modelo"].includes(e.codigo));
-      setFase("inicio");
     }
   }
 
@@ -117,7 +128,6 @@ export default function App() {
   function buscarTema(area: string | null, origem: string, fonte: "novo" | "salvo", excluir: string[], idTema: string | null = null) {
     setResultado(null);
     setAudio(null);
-    setMarcados(0);
     if (idTema) comecarSalvo(idTema, null);
     else if (fonte === "salvo") comecarSalvo(null, area, excluir);
     else comecar(area, origem);
@@ -129,8 +139,6 @@ export default function App() {
       pergunta: sessao!.pergunta,
       area: sessao!.area,
       fala: resultado!.fala,
-      marcados,
-      pontos: resultado!.pontos.length,
     };
     if (rodada < modo.temas) {
       setRodadas((r) => [...r, feita]);
@@ -192,6 +200,11 @@ export default function App() {
           </nav>
           <div className="topo-acoes">
             {emDemo && <span className="selo-demo">demo</span>}
+            {precisaChave && fase === "inicio" && temChave && !pedindoChave && (
+              <button className="botao-dev" onClick={() => setPedindoChave(true)} title="Trocar a chave da Groq">
+                <Icone nome="key" tamanho={20} />
+              </button>
+            )}
             <button
               className="botao-dev"
               onClick={() => {
@@ -235,7 +248,22 @@ export default function App() {
       )}
 
       <main className="palco" key={fase === "analisando" ? "explicacao" : fase}>
-        {fase === "inicio" && (
+        {mostrarChave && (
+          <Chave
+            aviso={avisoChave}
+            aoSalvar={() => {
+              setTemChave(true);
+              setPedindoChave(false);
+              setAvisoChave(null);
+            }}
+            aoCancelar={() => {
+              setTemChave(!!lerChave());
+              setPedindoChave(false);
+              setAvisoChave(null);
+            }}
+          />
+        )}
+        {fase === "inicio" && !mostrarChave && (
           <Inicio
             config={config}
             modos={modos}
@@ -284,7 +312,6 @@ export default function App() {
             limite={modo.explicacao}
             maxPalavras={modo.maxPalavras}
             seguir={{ rotulo: rotuloSeguir, acao: seguir }}
-            aoMarcar={setMarcados}
           />
         )}
         {fase === "resumo" && <Resumo rodadas={rodadas} aoReiniciar={reiniciar} />}

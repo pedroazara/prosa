@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { mmss, type Sessao } from "../api";
 import Anel, { useContagem } from "./Anel";
 import { sons } from "../sons";
-import BarraStatus from "./BarraStatus";
 import Icone from "./Icone";
 
 type Props = {
@@ -62,7 +61,8 @@ export default function Explicacao({ sessao, limite, instrucao, rodada, tempoEsg
     animar();
 
     const partes: Blob[] = [];
-    const rec = new MediaRecorder(stream);
+    // 32 kbit/s bastam para voz e mantêm a gravação longe do limite de envio do Vercel (4,5 MB ≈ 18 min).
+    const rec = new MediaRecorder(stream, { audioBitsPerSecond: 32000 });
     rec.ondataavailable = (e) => partes.push(e.data);
     rec.onstop = () => {
       const blob = new Blob(partes, { type: rec.mimeType });
@@ -99,21 +99,8 @@ export default function Explicacao({ sessao, limite, instrucao, rodada, tempoEsg
     setEstado("pronto");
   }
 
-  const statusDireita =
-    estado === "gravando" ? (
-      <span className="ao-vivo">
-        <Icone nome="mic" tamanho={18} /> Microfone ativo
-      </span>
-    ) : (
-      <>
-        <Icone nome="mic_off" tamanho={18} /> Microfone desligado
-      </>
-    );
-
   return (
     <section className="sala">
-      <BarraStatus passo="Passo 2 de 3 · Explicação em voz alta" direita={statusDireita} />
-
       <div className="sala-centro">
         <div className="sala-tema">
           {tempoEsgotado && estado === "pronto" && (
@@ -126,12 +113,7 @@ export default function Explicacao({ sessao, limite, instrucao, rodada, tempoEsg
             {rodada && ` · ${rodada}`}
           </span>
           <h1 className="pergunta">{sessao.pergunta}</h1>
-          <p className="lede">
-            {instrucao ??
-              (limite === null
-                ? "Explique os pontos principais, sem consultar nada."
-                : `Explique os pontos principais em até ${mmss(limite)}, sem consultar nada.`)}
-          </p>
+          {instrucao && <p className="lede">{instrucao}</p>}
         </div>
 
         {estado === "pronto" && (
@@ -141,7 +123,6 @@ export default function Explicacao({ sessao, limite, instrucao, rodada, tempoEsg
             </button>
             <div className="gravador-texto">
               <strong>Pronto para começar?</strong>
-              <span>{limite === null ? "Sem limite de tempo: pare quando terminar." : "A gravação para sozinha quando o tempo acabar."}</span>
             </div>
             {erroMic && (
               <p className="erro-inline">

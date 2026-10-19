@@ -184,6 +184,9 @@ prosa/
     desafio.py                  ← sorteio + referência (usa os módulos do Teste 2)
     fala.py                     ← transcrição e métricas de fala (do Teste 1)
     biblioteca.py               ← temas já gerados, para reusar sem gastar chamadas de IA
+    nuvem.py                    ← banco no Supabase, usado só no site publicado
+    supabase.sql                ← tabelas do Supabase (rodar uma vez)
+    enviar_temas.py             ← manda os temas de temas/ para o Supabase
     temas/                      ← um JSON por tema (pergunta + referência + rubrica)
     sessoes/                    ← sessões gravadas: rubrica + transcrição (fora do git)
     web/                        ← site em React (Vite)
@@ -191,7 +194,10 @@ prosa/
       src/demo.ts               ← modo demonstração (?demo), com dados falsos
       public/                   ← logotipo e favicon
   PROSA logo brief/             ← identidade visual (logotipo, cores)
-  requirements.txt
+  treinar.sh                    ← um comando para treinar: prepara tudo e abre o site
+  app.py, vercel.json           ← entrada e configuração do site publicado no Vercel
+  requirements.txt              ← dependências do servidor (o que o Vercel instala)
+  requirements-local.txt        ← as do servidor mais o Whisper local (o que o treinar.sh instala)
   .env.example                  ← modelo de configuração (a chave fica no .env, fora do git)
 ```
 
@@ -248,6 +254,7 @@ Detalhes em [experimentos/02-tema-e-referencia/GUIA.md](experimentos/02-tema-e-r
 - [x] Rodar umas 5 vezes com o prompt atual e revisar as rubricas (04/10). Resultado: em "Como funciona…" e "Qual a importância…" de temas com mecanismo (p53, carste, processo de contato), os pontos saem bons. Em temas de patrimônio (Hōryū-ji) ainda saem fatos ("uma das construções mais antigas"). Perguntas reescritas ficam genéricas ("cerâmica persa" → "cerâmica").
 - [x] Conferência de citações tolerante: aceita até 1 palavra diferente a cada 10, porque o LLM corrige erros de digitação do artigo ao copiar.
 - [x] O código sorteia também uma subárea (ex.: Física → acústica), para espalhar os temas.
+- [x] Estilo "tema" (05/10), usado pelo protótipo enquanto não há avaliação: em vez de uma pergunta específica, um tema específico, mas não obscuro, para estudar: algo com nome próprio e recorte claro ("Efeito Stroop", "Espectroscopia Raman", "Acordo de Paris"), e não um assunto amplo ("Cor", "Efeito estufa"). A rubrica traz os pontos principais do tema. Na conferência, o artigo precisa ser sobre o próprio tema: um artigo mais amplo que só o inclui numa parte é descartado ("Percepção de cor" tinha caído no artigo "Cor", e a tela mostrava só "Cor"). O LLM recebe também a área, para descartar artigos que só têm palavras em comum com o tema (um tema de Geologia já tinha caído num artigo sobre um site de reclamações de carro). O estilo "pergunta" continua em `sorteio.py` e `referencia.py`, e se escolhe em `desafio.ESTILO`.
 
 #### Teste 3: avaliação: 🟡 primeira versão
 
@@ -368,8 +375,10 @@ source .venv/bin/activate
 Com o ambiente ativado, na raiz do projeto:
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-local.txt
 ```
+
+O `requirements.txt` sozinho é o do site publicado, sem o Whisper local.
 
 O passo a passo para aprender a usar o Whisper e fazer o Teste 1 está em [experimentos/01-whisper/GUIA.md](experimentos/01-whisper/GUIA.md).
 
@@ -409,14 +418,26 @@ No `.env`, use `LLM_BASE_URL=http://localhost:11434/v1`, qualquer valor em `LLM_
 
 ### 5. Protótipo web
 
-Precisa do Node.js 20 ou mais novo, além do Python. Na primeira vez, instale as dependências do site:
+Precisa do Node.js 20 ou mais novo, além do Python.
+
+**Para treinar**, um comando só, na raiz do projeto:
+
+```bash
+./treinar.sh
+```
+
+Ele cria o `.venv` e instala as dependências na primeira vez (e de novo quando um dos `requirements` ou o `package-lock.json` muda), compila o site quando algum arquivo dele mudou, sobe o servidor e abre o navegador em http://127.0.0.1:8000. Para parar, Ctrl+C. Rodar de novo com o servidor já no ar só abre o navegador.
+
+Nesse modo o servidor não reinicia quando o código muda, para não perder a sessão no meio de um treino.
+
+**Para desenvolver**, na primeira vez instale as dependências do site:
 
 ```bash
 cd prototipo/web
 npm install
 ```
 
-Para usar, rode em dois terminais, a partir da raiz do projeto:
+Depois, rode em dois terminais, a partir da raiz do projeto:
 
 ```bash
 python prototipo/servidor.py         # API na porta 8000 (usa o LLM e o Whisper)
@@ -428,6 +449,26 @@ Para mexer só no visual, sem LLM nem Whisper, abra http://localhost:5173/?demo.
 Para servir tudo pela porta 8000, sem o Vite, compile o site uma vez com `npm run build`.
 
 O botão `</>` no topo abre o painel do desenvolvedor, com a rubrica oculta, o veredito e os candidatos testados. Abrir antes de explicar estraga o desafio.
+
+### 6. Site publicado (Vercel + Supabase)
+
+O mesmo protótipo roda no Vercel, com três diferenças em relação ao PC:
+
+- **Chave de cada pessoa.** O servidor publicado não tem chave de LLM. Quem usa cria uma conta grátis na Groq e cola a própria chave no site. Ela fica guardada só no navegador (`localStorage`) e vai no cabeçalho `X-Groq-Key` a cada pedido. O servidor não a grava.
+- **Whisper da Groq.** O faster-whisper não cabe numa função do Vercel. Lá a transcrição usa o `whisper-large-v3-turbo` da Groq, com a mesma chave. No PC, `WHISPER=groq` no `.env` força esse caminho.
+- **Supabase no lugar dos arquivos.** O disco do Vercel é só de leitura, e cada pedido pode cair numa máquina diferente. Por isso temas e sessões ficam nas tabelas `prosa_temas` e `prosa_sessoes`. Sem as variáveis do Supabase, o servidor grava em arquivos, como sempre.
+
+Para publicar:
+
+1. No [Supabase](https://supabase.com), crie um projeto (ou use um que já exista). No **SQL Editor**, rode o [prototipo/supabase.sql](prototipo/supabase.sql).
+2. Em **Project Settings → API Keys**, copie a URL do projeto e uma **secret key**. Ponha as duas no `.env` como `SUPABASE_URL` e `SUPABASE_SECRET_KEY`, e mande os temas que já existem:
+   ```bash
+   python prototipo/enviar_temas.py
+   ```
+   Com essas variáveis no `.env`, o protótipo no PC também passa a usar o Supabase. Para voltar aos arquivos, comente as duas linhas.
+3. No [Vercel](https://vercel.com), importe o repositório do GitHub. O `vercel.json` já diz como compilar o site e onde está o servidor (`app.py`).
+4. Em **Settings → Environment Variables**, ponha `SUPABASE_URL` e `SUPABASE_SECRET_KEY`. **Não** ponha `LLM_API_KEY`: sem ela, o site pede a chave de cada pessoa.
+5. Faça o deploy. A avaliação pela IA continua indisponível, como no PC, até o experimento 3 existir.
 
 ## Riscos conhecidos
 
@@ -473,6 +514,10 @@ O botão `</>` no topo abre o painel do desenvolvedor, com a rubrica oculta, o v
 | 04/10/2026 | Avaliação do conteúdo (Teste 3) adiada | Foco agora na geração do desafio e no protótipo |
 | 04/10/2026 | O código sorteia área e subárea (`SUBAREAS`, em `areas.py`) | Sem subárea, o LLM repetia os temas clássicos de cada área |
 | 04/10/2026 | Conferência de citações aceita até 10% de palavras diferentes | O LLM corrige erros de digitação ao copiar, e isso virava alarme falso |
+| 05/10/2026 | Sorteio de temas de nível médio, sem pergunta, enquanto a avaliação não existe; a biblioteca só mostra os temas desse estilo | As perguntas específicas sobre temas pouco conhecidos ficavam difíceis demais para treinar |
+| 05/10/2026 | O protótipo roda só no PC, aberto por `./treinar.sh`; sem hospedagem, login nem vídeo por enquanto | Para treinar, basta um comando; hospedar exigiria trocar o Whisper local por uma API e guardar as gravações num bucket |
+| 09/10/2026 | Temas de "uma ideia só" (um efeito, lei, experimento, caso), e não doenças, tratados ou técnicas inteiras; o artigo é buscado pelo título exato, e artigos mais amplos que o tema são recusados | Ainda saíam temas amplos (Hepatite C, Espectroscopia de absorção). A busca trocava temas específicos pelo artigo do assunto maior ("Hepatite A" → "Hepatite") |
+| 19/10/2026 | Site publicado no Vercel, com a chave da Groq de cada pessoa (guardada no navegador), Whisper da Groq e Supabase para temas e sessões; o `./treinar.sh` continua igual | Ninguém gasta a cota de outra pessoa, e o faster-whisper e a gravação em disco não funcionam no Vercel |
 
 ## Equipe
 

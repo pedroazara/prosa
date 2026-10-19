@@ -12,6 +12,7 @@ if (new URLSearchParams(location.search).has("estatico")) document.documentEleme
 const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export const configDemo: Config = {
+  chave_no_servidor: true,
   areas: ["Física", "Química", "Biologia", "Medicina", "Psicologia", "Matemática", "Computação", "Engenharia",
     "Economia", "Direito", "História", "Geopolítica", "Filosofia", "Astronomia", "Geologia", "Linguística",
     "Artes", "Arquitetura"],

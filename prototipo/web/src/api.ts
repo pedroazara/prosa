@@ -3,13 +3,14 @@
 import { analisarDemo, avaliacaoDemo, configDemo, devDemo, emDemo, sessaoDemo, sortearDemo, temasDemo } from "./demo";
 
 export type Config = {
+  chave_no_servidor: boolean; // false no site publicado: cada pessoa usa a própria chave da Groq
   areas: string[];
   origens: string[];
   tempo_pesquisa: number;
   tempo_explicacao: number;
 };
 
-export type Sessao = { id: string; pergunta: string; area: string; origem: string; tema?: string };
+export type Sessao = { id: string; pergunta: string; area: string; subarea?: string | null; origem: string; tema?: string };
 
 /** Um tema já gerado antes, guardado no servidor (prototipo/temas/). Vem sem a rubrica. */
 export type TemaSalvo = {
@@ -27,9 +28,12 @@ export type Sorteio = { area: string; subarea: string; areas: string[]; subareas
 
 export type Marcacao = { inicio: number; fim: number; tipo: "hesitacao" | "muleta" };
 
+export type Token = { inicio: number; fim: number; t0: number; t1: number };
+
 export type Fala = {
   texto: string;
   marcacoes: Marcacao[];
+  tokens?: Token[]; // ausente em sessões antigas e no modo demo
   duracao: number;
   palavras: number;
   palavras_por_minuto: number;
@@ -92,8 +96,38 @@ export class ErroApi extends Error {
   }
 }
 
+// A chave da Groq de quem usa o site fica só neste navegador. Vai no cabeçalho de cada pedido que usa a IA.
+const CHAVE = "prosa-chave-groq";
+
+export function lerChave(): string | null {
+  try {
+    return localStorage.getItem(CHAVE);
+  } catch {
+    return null;
+  }
+}
+
+export function gravarChave(chave: string | null) {
+  try {
+    if (chave) localStorage.setItem(CHAVE, chave);
+    else localStorage.removeItem(CHAVE);
+  } catch {
+    /* sem armazenamento: o site vai pedir a chave de novo */
+  }
+}
+
+/** Códigos de erro que pedem para a pessoa colar (ou trocar) a chave. */
+export const ERROS_DE_CHAVE = ["sem_chave", "chave"];
+
+function comChave(cabecalhos: Record<string, string> = {}): Record<string, string> {
+  const chave = lerChave();
+  return chave ? { ...cabecalhos, "X-Groq-Key": chave } : cabecalhos;
+}
+
 async function json<T>(resposta: Response): Promise<T> {
   if (!resposta.ok) {
+    // O Vercel recusa pedidos acima de 4,5 MB antes de chegar ao servidor, e a resposta não é JSON.
+    if (resposta.status === 413) throw new ErroApi("A gravação ficou grande demais para enviar. Tente uma explicação mais curta.");
     const corpo = await resposta.json().catch(() => null);
     throw new ErroApi(corpo?.detail ?? `Erro ${resposta.status} no servidor.`, resposta.headers.get("X-Codigo-Erro"));
   }
@@ -102,6 +136,14 @@ async function json<T>(resposta: Response): Promise<T> {
 
 export const buscarConfig = () =>
   emDemo ? Promise.resolve(configDemo) : fetch("/api/config").then((r) => json<Config>(r));
+
+/** Confere a chave no servidor (uma chamada barata à Groq) antes de guardá-la. */
+export const testarChave = (chave: string) =>
+  fetch("/api/chave", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chave }),
+  }).then((r) => json<{ ok: boolean }>(r));
 
 /** Sorteia o tema. O servidor manda uma linha JSON por mensagem de andamento. */
 export async function sortear(
@@ -113,7 +155,7 @@ export async function sortear(
   if (emDemo) return sortearDemo(aoAndar, aoSortear);
   const resposta = await fetch("/api/sessoes", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: comChave({ "Content-Type": "application/json" }),
     body: JSON.stringify({ area, origem }),
   });
   if (!resposta.ok || !resposta.body) await json(resposta);
@@ -156,7 +198,7 @@ export function analisar(idSessao: string, audio: Blob, modo: string): Promise<R
   const formulario = new FormData();
   formulario.append("audio", audio, `explicacao.${extensao}`);
   formulario.append("modo", modo);
-  return fetch(`/api/sessoes/${idSessao}/analise`, { method: "POST", body: formulario }).then((r) =>
+  return fetch(`/api/sessoes/${idSessao}/analise`, { method: "POST", headers: comChave(), body: formulario }).then((r) =>
     json<Resultado>(r),
   );
 }
@@ -166,7 +208,7 @@ export function avaliar(idSessao: string, marcacoes: boolean[]): Promise<Avaliac
   if (emDemo) return avaliacaoDemo();
   return fetch(`/api/sessoes/${idSessao}/avaliacao`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: comChave({ "Content-Type": "application/json" }),
     body: JSON.stringify({ marcacoes }),
   }).then((r) => json<Avaliacao>(r));
 }

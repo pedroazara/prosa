@@ -1,0 +1,11 @@
+# Só para o "vercel deploy" pela linha de comando: o que não sobe para o Vercel.
+.env
+.venv/
+video/
+docs/
+PROSA logo brief/
+experimentos/01-whisper/
+prototipo/sessoes/
+prototipo/web/node_modules/
+prototipo/web/dist/
+**/__pycache__/

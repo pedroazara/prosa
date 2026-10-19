@@ -3,6 +3,7 @@ Conexão com o LLM.
 
 Funciona com qualquer fornecedor que tenha API compatível com a da OpenAI
 (Groq, Gemini, Ollama...). O fornecedor é escolhido no arquivo .env, na raiz do projeto.
+No site publicado não há .env com chave: cada pessoa cola a sua chave da Groq, e o servidor a recebe a cada pedido.
 
 Rodado direto, lista os modelos disponíveis na sua conta:
     python llm.py
@@ -19,6 +20,9 @@ from openai import OpenAI
 # Procura o arquivo .env subindo pelas pastas até a raiz do projeto,
 # e coloca as variáveis dele no ambiente (os.environ).
 load_dotenv()
+
+GROQ = "https://api.groq.com/openai/v1"
+MODELO_GROQ = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")  # o usado com a chave de quem está no site
 
 
 def _ler(nome: str) -> str:
@@ -37,16 +41,27 @@ def _nao_repetir_cota_diaria(resposta: httpx.Response) -> None:
             resposta.headers["x-should-retry"] = "false"
 
 
-def criar_cliente() -> OpenAI:
+def configurado() -> bool:
+    """Se o .env tem um fornecedor de LLM. Sem ele, o servidor só funciona com a chave que vem do site."""
+    try:
+        _ler("LLM_BASE_URL"), _ler("LLM_API_KEY"), _ler("LLM_MODEL")
+    except SystemExit:
+        return False
+    return True
+
+
+def criar_cliente(chave: str | None = None) -> OpenAI:
+    """Sem chave: o fornecedor do .env. Com chave (a que a pessoa colou no site): a Groq."""
+    base_url, api_key = (GROQ, chave) if chave else (_ler("LLM_BASE_URL"), _ler("LLM_API_KEY"))
     return OpenAI(
-        base_url=_ler("LLM_BASE_URL"),
-        api_key=_ler("LLM_API_KEY"),
+        base_url=base_url,
+        api_key=api_key,
         http_client=httpx.Client(event_hooks={"response": [_nao_repetir_cota_diaria]}, timeout=120),
     )
 
 
-def modelo() -> str:
-    return _ler("LLM_MODEL")
+def modelo(chave: str | None = None) -> str:
+    return MODELO_GROQ if chave else _ler("LLM_MODEL")
 
 
 def _espera(texto: str) -> str | None:
@@ -69,14 +84,13 @@ def explicar_erro(erro: Exception) -> tuple[str, str]:
     conexao, resposta_invalida, fornecedor e desconhecido.
     """
     texto = str(erro)
-    nome = os.getenv("LLM_MODEL", "o modelo")
+    nome = os.getenv("LLM_MODEL", MODELO_GROQ)
     if isinstance(erro, openai.RateLimitError):
         quando = _espera(texto)
         if "per day" in texto:
             return "cota_diaria", (
                 f"A cota diária grátis do {nome} acabou. Ela volta aos poucos"
-                f"{f': tente de novo em {quando}' if quando else ''}. Enquanto isso, use um tema salvo "
-                "ou troque o LLM_MODEL no .env (cada modelo tem a sua cota)."
+                f"{f': tente de novo em {quando}' if quando else ''}. Enquanto isso, use um tema salvo."
             )
         return "cota_minuto", (
             f"Muitas chamadas à IA em pouco tempo. Espere {quando or 'um minuto'} e tente de novo."
@@ -84,9 +98,9 @@ def explicar_erro(erro: Exception) -> tuple[str, str]:
     if isinstance(erro, openai.APIStatusError) and erro.status_code == 413:
         return "grande_demais", "O texto mandado à IA passou do limite do plano grátis. Tente sortear de novo."
     if isinstance(erro, openai.AuthenticationError | openai.PermissionDeniedError):
-        return "chave", "A chave da IA (LLM_API_KEY no .env) foi recusada. Confira se ela está certa e ativa."
+        return "chave", "A chave da IA foi recusada. Confira se ela está certa e ativa."
     if isinstance(erro, openai.NotFoundError):
-        return "modelo", f"O modelo {nome} não está disponível nessa conta. Confira o LLM_MODEL no .env."
+        return "modelo", f"O modelo {nome} não está disponível nessa conta."
     if isinstance(erro, openai.APIConnectionError):  # inclui o tempo esgotado
         return "conexao", "Não consegui falar com o serviço da IA. Confira a internet e tente de novo."
     if isinstance(erro, openai.LengthFinishReasonError) or "json_validate_failed" in texto:

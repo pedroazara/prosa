@@ -2,7 +2,7 @@ import { mmss, type Fala } from "../api";
 import Icone from "./Icone";
 
 /** Uma rodada da maratona: o tema e o que foi medido na fala (tudo por código, sem IA). */
-export type Rodada = { pergunta: string; area: string; fala: Fala; marcados: number; pontos: number };
+export type Rodada = { pergunta: string; area: string; fala: Fala };
 
 const soma = (c: Record<string, number>) => Object.values(c).reduce((a, b) => a + b, 0);
 const viciosPorMinuto = (f: Fala) => (soma(f.hesitacoes) + soma(f.muletas)) / (f.duracao / 60 || 1);
@@ -11,8 +11,6 @@ const media = (valores: number[]) => valores.reduce((a, b) => a + b, 0) / (valor
 export default function Resumo({ rodadas, aoReiniciar }: { rodadas: Rodada[]; aoReiniciar: () => void }) {
   const ppm = media(rodadas.map((r) => r.fala.palavras_por_minuto));
   const vicios = media(rodadas.map((r) => viciosPorMinuto(r.fala)));
-  const marcados = rodadas.reduce((a, r) => a + r.marcados, 0);
-  const pontos = rodadas.reduce((a, r) => a + r.pontos, 0);
 
   return (
     <section className="resumo">
@@ -32,13 +30,6 @@ export default function Resumo({ rodadas, aoReiniciar }: { rodadas: Rodada[]; ao
           <span className="numero-medio">{vicios.toFixed(1)}</span>
           <span className="nota">por minuto, em média</span>
         </div>
-        <div className="cartao metrica">
-          <span className="rotulo">Pontos marcados</span>
-          <span className="numero-medio">
-            {marcados}/{pontos}
-          </span>
-          <span className="nota">pela sua própria marcação</span>
-        </div>
       </div>
 
       <ol className="resumo-rodadas">
@@ -50,7 +41,7 @@ export default function Resumo({ rodadas, aoReiniciar }: { rodadas: Rodada[]; ao
               <strong>{r.pergunta}</strong>
               <span className="nota">
                 {mmss(r.fala.duracao)} · {Math.round(r.fala.palavras_por_minuto)} palavras/min · {r.fala.pausas} pausas ·{" "}
-                {viciosPorMinuto(r.fala).toFixed(1)} vícios/min · {r.marcados} de {r.pontos} pontos
+                {viciosPorMinuto(r.fala).toFixed(1)} vícios/min
               </span>
             </div>
           </li>

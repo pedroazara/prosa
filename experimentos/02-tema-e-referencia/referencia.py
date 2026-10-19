@@ -72,6 +72,47 @@ Você recebe a pergunta e um artigo da Wikipedia, entre <artigo> e </artigo>.
 Escreva em português do Brasil.
 """
 
+# Estilo "tema" (ver sorteio.py): a pessoa explica um tema de nível médio, e não responde a uma pergunta.
+PROMPT_TEMA = """\
+Você prepara a referência de um treino de aprendizado.
+A pessoa recebeu um tema, vai pesquisar por conta própria na internet e depois
+explicar em voz alta, em até 2 minutos, os pontos principais do tema, sem entrar em detalhes.
+
+Você recebe o tema, a área dele e um artigo da Wikipedia, entre <artigo> e </artigo>.
+
+1. Decida se o artigo serve de referência para o tema:
+   - "responde": o artigo é especificamente sobre o tema, ainda que com um nome um pouco
+     diferente ("Espectroscópio Raman" e "Espectroscopia Raman"; "Polimetilmetacrilato" e "Acrílico");
+   - "outro_assunto": o artigo é sobre outra coisa, mesmo que tenha palavras ou lugares em comum
+     com o tema (o tema "Falha de Santa Catarina", da Geologia, e um artigo sobre um site de
+     reclamações de carro); ou o artigo é sobre um assunto mais amplo, que só trata do tema
+     numa parte (o tema "Percepção de cor" e o artigo "Cor"). Na dúvida, "outro_assunto".
+   Nunca use "reescrever".
+   Em pergunta_final, se o veredito for "responde", escreva o nome do tema como a pessoa vai vê-lo:
+   o nome recebido, corrigido só se estiver errado ("Espectroscópio Raman" → "Espectroscopia Raman"),
+   sem alargar nem estreitar o tema. Se for "outro_assunto", deixe vazio.
+
+2. Se o veredito for "responde", liste de 3 a 5 pontos principais que uma boa explicação
+   curta do tema deveria conter:
+   - cada ponto é uma ideia completa, numa frase, e não uma palavra-chave.
+     Exemplo: "Gases como o gás carbônico deixam passar a luz do Sol, mas retêm o calor que a Terra emite."
+   - juntos, os pontos cobrem o essencial: o que é, como funciona ou por que acontece,
+     e por que importa (consequências, usos, impacto). Não precisa haver um ponto de cada;
+   - só as ideias essenciais: o que, se a pessoa deixasse de dizer, faria a explicação
+     ficar incompleta. Nada de detalhes de segunda ordem;
+   - não monte uma linha do tempo: nenhum ponto pode ser só um evento com data.
+     Se uma data ou um nome entrar, é de apoio dentro da ideia, nunca o centro dela;
+   - fatos isolados não são pontos principais: medidas, datas, localização, listas de
+     componentes. Use um número só se ele for o próprio ponto;
+   - para cada ponto, copie do artigo, palavra por palavra, um trecho curto que o sustenta.
+   Se o veredito for "outro_assunto", deixe a lista vazia.
+
+3. Use apenas o conteúdo do artigo. Não acrescente informações de memória.
+
+Escreva a justificativa e as ideias em português do Brasil, mesmo que o artigo tenha trechos
+em outra língua. Só os trechos do artigo são copiados como estão.
+"""
+
 
 class Ponto(BaseModel):
     ideia: str
@@ -122,15 +163,21 @@ def preparar_texto(texto: str, pergunta: str, limite: int = LIMITE_ARTIGO) -> st
     return "\n\n".join([intro] + [secoes[i][1] for i in sorted(escolhidas)])
 
 
-def montar(cliente: OpenAI, modelo: str, pergunta: str, artigo: dict, limite: int = LIMITE_ARTIGO) -> Referencia:
+def montar(cliente: OpenAI, modelo: str, pergunta: str, artigo: dict, limite: int = LIMITE_ARTIGO,
+           estilo: str = "pergunta", area: str | None = None) -> Referencia:
+    """estilo: "pergunta" ou "tema" (ver sorteio.py). No estilo tema, a "pergunta" é o nome do tema,
+    e a área ajuda a descartar artigos de outro assunto que só têm palavras em comum com ele."""
     texto = preparar_texto(artigo["texto"], pergunta, limite)
+    sistema, rotulo = (PROMPT_TEMA, "Tema") if estilo == "tema" else (PROMPT_SISTEMA, "Pergunta")
+    if area:
+        rotulo = f"Área: {area}\n{rotulo}"
     resposta = cliente.chat.completions.parse(
         model=modelo,
         messages=[
-            {"role": "system", "content": PROMPT_SISTEMA},
+            {"role": "system", "content": sistema},
             {
                 "role": "user",
-                "content": f"Pergunta: {pergunta}\n\n<artigo titulo=\"{artigo['titulo']}\">\n{texto}\n</artigo>",
+                "content": f"{rotulo}: {pergunta}\n\n<artigo titulo=\"{artigo['titulo']}\">\n{texto}\n</artigo>",
             },
         ],
         response_format=Referencia,
